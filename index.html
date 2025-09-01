@@ -7,17 +7,16 @@
 
     <meta name="theme-color" content="#4f46e5"/>
     <meta name="description" content="Aplikasi Toko Buku Online Fatiha.">
-    <link rel="manifest" href="/assets/manifest-I4A2uEKU.json">
+    <link rel="manifest" href="/manifest.json">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="apple-touch-icon" href="/assets/icon-192-BdpKCWKs.png">
-    <link rel="icon" href="/assets/icon-192-BdpKCWKs.png">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <link rel="icon" href="/icons/icon-192.png">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
         /* Variabel Warna Tema */
-
         :root {
             --primary-start: #4f46e5; /* Indigo */
             --primary-end: #ec4899;   /* Pink */
@@ -35,38 +34,31 @@
             background-attachment: fixed;
             color: var(--text-primary);
         }
-
+        
         /* Pre-loader Style */
-
         #initial-loader-container {
             display: flex; justify-content: center; align-items: center;
             height: 100vh; width: 100%; position: fixed; top: 0; left: 0;
             background: linear-gradient(145deg, var(--bg-start) 0%, var(--bg-end) 100%);
             z-index: 9999; transition: opacity 0.5s ease-out;
         }
-
         #initial-loader {
             width: 50px; height: 50px; border: 5px solid rgba(79, 70, 229, 0.2);
             border-top-color: var(--primary-start); border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Glassmorphism Header & Nav */
-
         .glass-header, .glass-bottom-nav {
             background: rgba(255, 255, 255, 0.7);
             -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
         }
-
         .glass-header { border-bottom: 1px solid rgba(209, 213, 219, 0.5); }
-
         .glass-bottom-nav { border-top: 1px solid rgba(209, 213, 219, 0.5); }
 
         /* Gradient Text */
-
         .text-gradient {
             background: linear-gradient(90deg, var(--primary-start), var(--primary-end));
             -webkit-background-clip: text;
@@ -74,72 +66,56 @@
         }
 
         /* Custom Button */
-
         .btn-gradient {
             background-image: linear-gradient(to right, var(--primary-start) 0%, var(--primary-end) 51%, var(--primary-start) 100%);
             background-size: 200% auto;
             transition: all 0.3s ease-in-out; color: white; font-weight: 600;
         }
-
         .btn-gradient:hover {
             background-position: right center; transform: translateY(-2px);
             box-shadow: 0 4px 15px 0 rgba(124, 58, 237, 0.35);
         }
-
+        
         /* Scrollbar */
-
         .scrollbar-hide::-webkit-scrollbar { display: none; }
-
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
         ::-webkit-scrollbar { width: 8px; }
-
         ::-webkit-scrollbar-track { background: var(--bg-start); }
-
         ::-webkit-scrollbar-thumb { background: var(--primary-end); border-radius: 10px; }
-
         ::-webkit-scrollbar-thumb:hover { background: var(--primary-start); }
 
         /* Animasi */
-
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
         @keyframes kenBurns {
             0% { transform: scale(1) translate(0, 0); }
             100% { transform: scale(1.1) translate(-2%, 2%); }
         }
-
         @keyframes marquee {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
-
         .marquee-text { animation: marquee 30s linear infinite; }
-
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
-
         .ken-burns { animation: kenBurns 20s infinite alternate ease-in-out; }
 
         .stagger-in > * {
             opacity: 0; transform: translateY(20px);
             animation: fadeIn 0.5s ease-out forwards;
         }
-
+        
         .line-clamp-2 {
             overflow: hidden; display: -webkit-box;
             -webkit-box-orient: vertical; -webkit-line-clamp: 2;
         }
-
+        
         /* Navigasi Bawah Aktif */
-
         .bottom-nav-item.active {
             color: var(--primary-start);
             transform: translateY(-4px);
         }
-
         .bottom-nav-item.active .nav-text {
             font-weight: 700;
         }
@@ -1180,35 +1156,9 @@
             
             if (userProfile.role === 'reader') {
                 const handleApplyForAffiliate = () => {
-                    openModal(
-                        'Konfirmasi Pendaftaran Afiliasi',
-                        'Anda akan diarahkan ke WhatsApp untuk menyelesaikan pendaftaran (biaya Rp25.000). Status Anda akan diubah menjadi "Tertunda". Lanjutkan?',
-                        [
-                            { label: 'Batal', onClick: closeModal, className: 'bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold' },
-                            { 
-                                label: 'Ya, Lanjutkan', 
-                                onClick: async () => {
-                                    closeModal();
-                                    try {
-                                        const requestAffiliate = functions.httpsCallable('requestAffiliateRegistration');
-                                        const result = await requestAffiliate();
-                                        
-                                        if (result.data.success) {
-                                            const message = `Halo, saya ingin mendaftar program afiliasi.\n\nNama: ${userProfile.name}\nEmail: ${userProfile.email}\nUser ID: ${user.uid}`;
-                                            window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank');
-                                            openModal('Permintaan Terkirim', 'Permintaan pendaftaran Anda sedang diproses. Silakan lanjutkan pembayaran di WhatsApp.');
-                                        } else {
-                                            throw new Error(result.data.message || 'Gagal mengajukan pendaftaran.');
-                                        }
-                                    } catch (error) {
-                                        console.error("Gagal mendaftar afiliasi:", error);
-                                        openModal('Error', `Terjadi kesalahan. Pastikan Cloud Function sudah di-deploy dengan benar dan coba lagi. Pesan error: ${error.message}`);
-                                    }
-                                }, 
-                                className: 'btn-gradient px-4 py-2 rounded-lg' 
-                            }
-                        ]
-                    );
+                    // Langsung membuat pesan untuk WhatsApp tanpa modal atau Cloud Function
+                    const message = `Halo Admin, saya ingin mendaftar sebagai afiliator Toko Buku Fatiha.\n\nNama: ${userProfile.name}\nEmail: ${userProfile.email}\nUser ID: ${user.uid}`;
+                    window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank');
                 };
 
                 return (
@@ -1222,8 +1172,8 @@
                             </div>
                         </AdminSection>
                         <AdminSection title="Gabung Program Afiliasi">
-                            <p className="text-gray-600 mb-4">Klik tombol di bawah ini untuk mendaftar. Anda akan diarahkan ke WhatsApp Admin.</p>
-                            <button onClick={handleApplyForAffiliate} className="w-full btn-gradient p-3 rounded-lg text-lg">Daftar Sekarang</button>
+                            <p className="text-gray-600 mb-4">Klik tombol di bawah ini untuk mendaftar. Anda akan diarahkan langsung ke WhatsApp Admin untuk konfirmasi.</p>
+                            <button onClick={handleApplyForAffiliate} className="w-full btn-gradient p-3 rounded-lg text-lg">Daftar via WhatsApp</button>
                         </AdminSection>
                     </div>
                 );
@@ -1256,11 +1206,11 @@
                             <p className="text-center italic">Bayangkan...</p>
                             <p>Kamu hanya pasang link afiliasi di status, dan dari situlah lahir omset digital yang mengalir tanpa batas.</p>
                             <p>Di Toko Buku Fatiha, satu klik dari statusmu bisa jadi <strong>warisan komisi tanpa tanggal kedaluwarsa.</strong> Siapa pun yang mendaftar melalui link afiliasimu, akan tercatat selamanya sebagai milikmu.</p>
-                            <p>Apa pun yang mereka beli hari ini, bulan depan, atau tahun depan—komisinya tetap milikmu. Buku cetak? Bab berbayar? Kampanye penulis? Semua jejak transaksi mereka jadi ladang penghasilanmu.</p>
+                            <p>Apa pun yang mereka beli hari ini, bulan depan, atau tahun depan, komisinya tetap milikmu. Buku cetak? Bab berbayar? Kampanye penulis? Semua jejak transaksi mereka jadi ladang penghasilanmu.</p>
                             
                             <h4 className="font-bold text-lg pt-2 text-gray-800">Kenapa sistem ini menguntungkan?</h4>
                             <div className="space-y-2">
-                                <p><strong>Komisi Berkelanjutan:</strong> Setiap transaksi dari link afiliasi milikmu—kapan pun, berapa pun, berapa kali pun—akan mengisi saldomu secara otomatis.</p>
+                                <p><strong>Komisi Berkelanjutan:</strong> Setiap transaksi dari link afiliasi milikmu—kapan pun, berapa pun, berapa kali pun, akan mengisi saldomu secara otomatis.</p>
                                 <p><strong>Sekali Share, Selamanya Panen:</strong> Kamu hanya butuh satu kali ajak. Mereka daftar, dan sistem akan terus mencatat setiap transaksi mereka untukmu.</p>
                                 <p><strong>Sistem Otomatis & Transparan:</strong> Tak perlu hitung-hitungan manual. Semua pelacakan dilakukan oleh sistem secara real-time, bisa kamu pantau sendiri. Transparan. Modern. Andal.</p>
                             </div>
@@ -1382,116 +1332,156 @@
         };
         
         const UserManagement = ({ openModal }) => {
-            const [allUsers, setAllUsers] = useState([]);
-            const [isLoading, setIsLoading] = useState(true);
-            const [saldoUser, setSaldoUser] = useState('');
-            const [saldoAmount, setSaldoAmount] = useState('');
+    // State management for the component
+    const { user: adminUser } = useContext(AppContext); 
+    const [allUsers, setAllUsers] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [mainBalanceUser, setMainBalanceUser] = useState('');
+    const [mainBalanceAmount, setMainBalanceAmount] = useState('');
+    const [affiliateBalanceUser, setAffiliateBalanceUser] = useState('');
+    const [affiliateBalanceAmount, setAffiliateBalanceAmount] = useState('');
 
-            useEffect(() => {
-                const unsubscribe = db.collection('users').onSnapshot(snapshot => {
-                    setAllUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-                    setIsLoading(false);
-                }, error => {
-                    console.error("Error fetching users:", error)
-                    setIsLoading(false);
-                });
-                return () => unsubscribe();
-            }, []);
+    // Effect to fetch all users from Firestore on component mount
+    useEffect(() => {
+        const unsubscribe = db.collection('users').onSnapshot(snapshot => {
+            setAllUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            setIsLoading(false);
+        }, error => {
+            console.error("Error fetching users:", error)
+            setIsLoading(false);
+        });
+        return () => unsubscribe();
+    }, []);
 
-            const displayedUsers = allUsers.filter(u => u.role);
+    // Filter users with 'affiliate' role for the commission balance form
+    const affiliates = allUsers.filter(u => u.role === 'affiliate');
 
-            const handleAddBalance = async (e) => {
-                e.preventDefault();
-                const amount = parseInt(saldoAmount, 10);
-                if (!saldoUser || isNaN(amount)) { 
-                    openModal('Error', 'Silakan pilih pengguna dan masukkan jumlah yang valid.'); 
-                    return; 
-                }
-                await db.collection('users').doc(saldoUser).update({ balance: FieldValue.increment(amount) });
-                openModal('Sukses', `Saldo berhasil diubah.`);
-                setSaldoUser(''); setSaldoAmount('');
-            };
-            
-            if(isLoading) return <TailSpin/>;
+    // Function to handle balance updates (both main and affiliate)
+    const handleUpdateBalance = async (e, balanceType) => {
+        e.preventDefault();
+        const userId = balanceType === 'main' ? mainBalanceUser : affiliateBalanceUser;
+        const amountStr = balanceType === 'main' ? mainBalanceAmount : affiliateBalanceAmount;
+        const amount = parseInt(amountStr, 10);
 
-            return (
-                <AdminSection title="Kelola Pengguna Terdaftar">
-                    <form onSubmit={handleAddBalance} className="space-y-3 mb-6 p-4 border rounded-lg bg-gray-50/80">
-                        <h4 className="text-lg font-semibold text-gray-800">Ubah Saldo Pengguna</h4>
-                        <select value={saldoUser} onChange={e => setSaldoUser(e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg bg-white text-gray-900" required>
-                            <option value="">Pilih Pengguna</option>
-                            {displayedUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.email})</option>)}
-                        </select>
-                        <input type="number" value={saldoAmount} onChange={e => setSaldoAmount(e.target.value)} placeholder="Jumlah (gunakan - untuk mengurangi)" className="w-full p-2 border border-gray-300 rounded-lg bg-white text-gray-900" required />
-                        <button type="submit" className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 font-semibold transition-all">Ubah Saldo</button>
-                    </form>
-                        <div className="space-y-3">
-                                {displayedUsers.map(u => (
-                                    <div key={u.id} className="bg-gray-50/80 p-3 rounded-lg flex justify-between items-center">
-                                        <div>
-                                            <p className="font-semibold text-gray-800 break-all">{u.email} <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full whitespace-nowrap">{u.role}</span></p>
-                                            <p className="text-sm text-gray-500">{u.name}</p>
-                                            <p className="text-sm text-green-600 font-medium">Saldo: Rp {new Intl.NumberFormat('id-ID').format(u.balance || 0)}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                        </div>
-                </AdminSection>
-            );
-        };
+        if (!userId || isNaN(amount)) { 
+            openModal('Error', 'Silakan pilih pengguna dan masukkan jumlah yang valid.'); 
+            return; 
+        }
+
+        const fieldToUpdate = balanceType === 'main' ? 'balance' : 'affiliateBalance';
         
-        const AffiliateManagement = ({ openModal }) => {
-            const [allUsers, setAllUsers] = useState([]);
-            const [isLoading, setIsLoading] = useState(true);
+        try {
+            await db.collection('users').doc(userId).update({ [fieldToUpdate]: FieldValue.increment(amount) });
+            openModal('Sukses', `Saldo berhasil diubah.`);
+            if (balanceType === 'main') {
+                setMainBalanceUser(''); setMainBalanceAmount('');
+            } else {
+                setAffiliateBalanceUser(''); setAffiliateBalanceAmount('');
+            }
+        } catch (error) {
+            openModal('Error', `Gagal mengubah saldo: ${error.message}`);
+        }
+    };
+    
+    // Function to handle user role changes
+    const handleRoleChange = async (userId, newRole) => {
+        try {
+            await db.collection('users').doc(userId).update({ role: newRole });
+            openModal('Sukses', 'Peran pengguna berhasil diperbarui.');
+        } catch (error) {
+            openModal('Error', `Gagal mengubah peran: ${error.message}`);
+        }
+    };
 
-            useEffect(() => {
-                const unsubscribe = db.collection('users').onSnapshot(snapshot => {
-                    setAllUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-                    setIsLoading(false);
-                }, error => {
-                    console.error("Error fetching users for affiliate management:", error)
-                    setIsLoading(false);
-                });
-                return () => unsubscribe();
-            }, []);
-
-            const handleAffiliateAction = async (userId, newRole) => {
-                await db.collection('users').doc(userId).update({ role: newRole });
-                openModal('Sukses', `Status afiliasi pengguna telah diperbarui.`);
-            };
-            
-            if(isLoading) return <TailSpin/>;
-
-            return (
-                <AdminSection title="Kelola Afiliasi">
-                    <div className="space-y-3">
-                        {allUsers.filter(u => u.role?.includes('affiliate')).length > 0 ? (
-                            allUsers.filter(u => u.role?.includes('affiliate')).map(user => (
-                                <div key={user.id} className="bg-gray-50/80 p-3 rounded-lg flex justify-between items-center">
-                                    <div>
-                                        <p className="font-semibold text-gray-800">{user.name}</p>
-                                        <p className="text-sm text-gray-500">{user.email} - <span className={`font-medium ${user.role === 'affiliate' ? 'text-green-600' : 'text-yellow-600'}`}>{user.role === 'affiliate' ? 'Aktif' : 'Tertunda'}</span></p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        {user.role === 'affiliate_pending' && (
-                                            <Fragment>
-                                                <button onClick={() => handleAffiliateAction(user.id, 'affiliate')} className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">Setujui</button>
-                                                <button onClick={() => handleAffiliateAction(user.id, 'reader')} className="text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600">Tolak</button>
-                                            </Fragment>
-                                        )}
-                                        {user.role === 'affiliate' && (
-                                            <button onClick={() => handleAffiliateAction(user.id, 'reader')} className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Cabut</button>
-                                        )}
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-center text-gray-500">Belum ada permintaan afiliasi.</p>
-                        )}
-                    </div>
-                </AdminSection>
-            );
+    // Helper component to display a styled badge for user roles
+    const RoleBadge = ({ role }) => {
+        const roles = {
+            admin: 'bg-red-200 text-red-800',
+            affiliate: 'bg-green-200 text-green-800',
+            reader: 'bg-gray-200 text-gray-800',
+            affiliate_pending: 'bg-yellow-200 text-yellow-800'
         };
+        const roleText = { admin: 'Admin', affiliate: 'Afiliasi', reader: 'Pembaca', affiliate_pending: 'Tertunda' };
+        return <span className={`px-2 py-1 text-xs font-semibold rounded-full ${roles[role] || roles.reader}`}>{roleText[role] || 'Tidak Diketahui'}</span>;
+    };
+    
+    // Display a loading spinner while fetching data
+    if(isLoading) return <TailSpin/>;
+
+    // Logic to filter users based on the search term
+    const filteredUsers = allUsers.filter(user => 
+        (user.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) || 
+        (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase())
+    );
+
+    // JSX to render the entire user management interface
+    return (
+        <React.Fragment>
+            {/* Section 1: Balance Management */}
+            <AdminSection title="Kelola Saldo Pengguna">
+                {/* Form for Main Balance */}
+                <form onSubmit={(e) => handleUpdateBalance(e, 'main')} className="space-y-3 mb-6 p-4 border rounded-lg bg-gray-50/80">
+                    <h4 className="text-lg font-semibold text-gray-800">Ubah Saldo Utama</h4>
+                    <select value={mainBalanceUser} onChange={e => setMainBalanceUser(e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg bg-white text-gray-900" required>
+                        <option value="">Pilih Pengguna</option>
+                        {allUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.email})</option>)}
+                    </select>
+                    <input type="number" value={mainBalanceAmount} onChange={e => setMainBalanceAmount(e.target.value)} placeholder="Jumlah (gunakan - untuk mengurangi)" className="w-full p-2 border border-gray-300 rounded-lg bg-white text-gray-900" required />
+                    <button type="submit" className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 font-semibold transition-all">Ubah Saldo Utama</button>
+                </form>
+                {/* Form for Affiliate Commission Balance */}
+                <form onSubmit={(e) => handleUpdateBalance(e, 'affiliate')} className="space-y-3 p-4 border rounded-lg bg-gray-50/80">
+                    <h4 className="text-lg font-semibold text-gray-800">Ubah Saldo Komisi Afiliasi</h4>
+                    <select value={affiliateBalanceUser} onChange={e => setAffiliateBalanceUser(e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg bg-white text-gray-900" required>
+                        <option value="">Pilih Afiliator</option>
+                        {affiliates.map(u => <option key={u.id} value={u.id}>{u.name} ({u.email})</option>)}
+                    </select>
+                    <input type="number" value={affiliateBalanceAmount} onChange={e => setAffiliateBalanceAmount(e.target.value)} placeholder="Jumlah (gunakan - untuk mengurangi)" className="w-full p-2 border border-gray-300 rounded-lg bg-white text-gray-900" required />
+                    <button type="submit" className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 font-semibold transition-all">Ubah Saldo Komisi</button>
+                </form>
+            </AdminSection>
+
+            {/* Section 2: User Role Management */}
+            <AdminSection title="Kelola Peran Pengguna">
+                {/* Search Input Field */}
+                <input 
+                    type="text" 
+                    placeholder="Cari nama atau email pengguna..." 
+                    value={searchTerm} 
+                    onChange={e => setSearchTerm(e.target.value)} 
+                    className="w-full p-2 border border-gray-300 rounded-lg mb-4 bg-white text-gray-900"
+                />
+                {/* List of Filtered Users */}
+                <div className="space-y-3">
+                    {filteredUsers.map(user => (
+                        <div key={user.id} className="bg-gray-50/80 p-3 rounded-lg flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                            <div className="flex-1">
+                                <p className="font-semibold text-gray-800">{user.name}</p>
+                                <p className="text-sm text-gray-500">{user.email}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <RoleBadge role={user.role} />
+                                {/* Role Changer Dropdown (Admin cannot change their own role) */}
+                                {adminUser && user.id !== adminUser.uid && (
+                                    <select 
+                                        value={user.role || 'reader'} 
+                                        onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                        className="p-1 border border-gray-300 rounded-md text-sm bg-white"
+                                    >
+                                        <option value="reader">Pembaca</option>
+                                        <option value="affiliate">Afiliasi</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </AdminSection>
+        </React.Fragment>
+    );
+};
 
         const NovelManagement = ({ openModal, closeModal }) => {
             const [newNovel, setNewNovel] = useState({ title: '', author: '', coverUrl: '', genre: '', pricePrinted: '', commissionRate: '', synopsis: '' });
@@ -1892,6 +1882,7 @@
 
 </body>
 </html>
+
 
 
 
