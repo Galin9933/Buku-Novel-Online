@@ -1,0 +1,22 @@
+{
+  "short_name": "Fatiha",
+  "name": "Toko Buku Fatiha",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#f5f3ff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#4f46e5",
+  "description": "Aplikasi Toko Buku Online Fatiha."
+}

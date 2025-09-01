@@ -1,0 +1,52 @@
+[debug] [2025-09-01T00:23:33.930Z] ----------------------------------------------------------------------
+[debug] [2025-09-01T00:23:33.936Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ACER\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js init hosting
+[debug] [2025-09-01T00:23:33.937Z] CLI Version:   14.15.1
+[debug] [2025-09-01T00:23:33.937Z] Platform:      win32
+[debug] [2025-09-01T00:23:33.938Z] Node Version:  v22.18.0
+[debug] [2025-09-01T00:23:33.952Z] Time:          Mon Sep 01 2025 07:23:33 GMT+0700 (Waktu Indonesia Barat)
+[debug] [2025-09-01T00:23:33.952Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-09-01T00:23:33.965Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-09-01T00:23:33.966Z] > authorizing via signed-in user (mafazafatiha@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  C:\Users\ACER\toko-buku-vite
+
+[info] 
+=== Project Setup
+[info] 
+[info] First, let's associate this project directory with a Firebase project.
+[info] You can create multiple project aliases by running firebase use --add, 
+[info] but for now we'll just set up a default project.
+[info] 
+[debug] [2025-09-01T00:23:38.236Z] Using project from CLI flag: tokobukuonlinesaya-f9936
+[debug] [2025-09-01T00:23:38.242Z] Checked if tokens are valid: false, expires at: 1756629322076
+[debug] [2025-09-01T00:23:38.244Z] Checked if tokens are valid: false, expires at: 1756629322076
+[debug] [2025-09-01T00:23:38.245Z] > refreshing access token with scopes: []
+[debug] [2025-09-01T00:23:38.254Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-09-01T00:23:38.254Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-01T00:23:38.919Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-09-01T00:23:38.919Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-09-01T00:23:38.988Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/tokobukuonlinesaya-f9936 [none]
+[debug] [2025-09-01T00:23:39.602Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/tokobukuonlinesaya-f9936 200
+[debug] [2025-09-01T00:23:39.603Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/tokobukuonlinesaya-f9936 {"projectId":"tokobukuonlinesaya-f9936","projectNumber":"527175870416","displayName":"TOKO BUKU ONLINE","name":"projects/tokobukuonlinesaya-f9936","resources":{"hostingSite":"tokobukuonlinesaya-f9936"},"state":"ACTIVE","etag":"1_b4efa870-8a5f-43e6-8f5f-83a1e1727202"}
+[info] i  Using project tokobukuonlinesaya-f9936 (TOKO BUKU ONLINE) 
+[info] 
+=== Hosting Setup
+[debug] [2025-09-01T00:23:39.681Z] Checked if tokens are valid: true, expires at: 1756689817919
+[debug] [2025-09-01T00:23:39.682Z] Checked if tokens are valid: true, expires at: 1756689817919
+[debug] [2025-09-01T00:23:39.682Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/tokobukuonlinesaya-f9936 [none]
+[debug] [2025-09-01T00:23:40.257Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/tokobukuonlinesaya-f9936 200
+[debug] [2025-09-01T00:23:40.257Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/tokobukuonlinesaya-f9936 {"projectId":"tokobukuonlinesaya-f9936","projectNumber":"527175870416","displayName":"TOKO BUKU ONLINE","name":"projects/tokobukuonlinesaya-f9936","resources":{"hostingSite":"tokobukuonlinesaya-f9936"},"state":"ACTIVE","etag":"1_b4efa870-8a5f-43e6-8f5f-83a1e1727202"}
+[info] 
+[info] Your public directory is the folder (relative to your project directory) that
+[info] will contain Hosting assets to be uploaded with firebase deploy. If you
+[info] have a build process for your assets, use your build's output directory.
+[info] 

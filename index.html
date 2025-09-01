@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toko Buku Fatiha</title>
+
+    <meta name="theme-color" content="#4f46e5"/>
+    <meta name="description" content="Aplikasi Toko Buku Online Fatiha.">
+    <link rel="manifest" href="/assets/manifest-I4A2uEKU.json">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="apple-touch-icon" href="/assets/icon-192-BdpKCWKs.png">
+    <link rel="icon" href="/assets/icon-192-BdpKCWKs.png">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+        /* Variabel Warna Tema */
+
+        :root {
+            --primary-start: #4f46e5; /* Indigo */
+            --primary-end: #ec4899;   /* Pink */
+            --secondary: #f97316; /* Orange */
+            --bg-start: #f5f3ff;
+            --bg-end: #fdf2f8;
+            --text-primary: #1f2937;
+            --text-secondary: #4b5563;
+            --card-bg: rgba(255, 255, 255, 0.85);
+        }
+
+        body {  
+            font-family: 'Inter', sans-serif;  
+            background: linear-gradient(145deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+        }
+
+        /* Pre-loader Style */
+
+        #initial-loader-container {
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; width: 100%; position: fixed; top: 0; left: 0;
+            background: linear-gradient(145deg, var(--bg-start) 0%, var(--bg-end) 100%);
+            z-index: 9999; transition: opacity 0.5s ease-out;
+        }
+
+        #initial-loader {
+            width: 50px; height: 50px; border: 5px solid rgba(79, 70, 229, 0.2);
+            border-top-color: var(--primary-start); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Glassmorphism Header & Nav */
+
+        .glass-header, .glass-bottom-nav {
+            background: rgba(255, 255, 255, 0.7);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+        }
+
+        .glass-header { border-bottom: 1px solid rgba(209, 213, 219, 0.5); }
+
+        .glass-bottom-nav { border-top: 1px solid rgba(209, 213, 219, 0.5); }
+
+        /* Gradient Text */
+
+        .text-gradient {
+            background: linear-gradient(90deg, var(--primary-start), var(--primary-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Custom Button */
+
+        .btn-gradient {
+            background-image: linear-gradient(to right, var(--primary-start) 0%, var(--primary-end) 51%, var(--primary-start) 100%);
+            background-size: 200% auto;
+            transition: all 0.3s ease-in-out; color: white; font-weight: 600;
+        }
+
+        .btn-gradient:hover {
+            background-position: right center; transform: translateY(-2px);
+            box-shadow: 0 4px 15px 0 rgba(124, 58, 237, 0.35);
+        }
+
+        /* Scrollbar */
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        ::-webkit-scrollbar { width: 8px; }
+
+        ::-webkit-scrollbar-track { background: var(--bg-start); }
+
+        ::-webkit-scrollbar-thumb { background: var(--primary-end); border-radius: 10px; }
+
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-start); }
+
+        /* Animasi */
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes kenBurns {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(-2%, 2%); }
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        .marquee-text { animation: marquee 30s linear infinite; }
+
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+
+        .ken-burns { animation: kenBurns 20s infinite alternate ease-in-out; }
+
+        .stagger-in > * {
+            opacity: 0; transform: translateY(20px);
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .line-clamp-2 {
+            overflow: hidden; display: -webkit-box;
+            -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+        }
+
+        /* Navigasi Bawah Aktif */
+
+        .bottom-nav-item.active {
+            color: var(--primary-start);
+            transform: translateY(-4px);
+        }
+
+        .bottom-nav-item.active .nav-text {
+            font-weight: 700;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="initial-loader-container">
+        <div id="initial-loader"></div>
+    </div>
+    
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin defer></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin defer></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-functions-compat.js" defer></script>   
+    <script type="text/babel">
+        // ===================================================================================
+        // PENTING: GANTI KONFIGURASI FIREBASE DI BAWAH INI
+        // Anda harus mengisi bagian ini dengan kredensial dari proyek Firebase Anda sendiri.
+        // Anda bisa mendapatkannya dari Firebase Console > Project Settings > General.
+        // ===================================================================================
+        
+        const { useState, useEffect, createContext, useContext, StrictMode, Fragment, memo, useRef } = React;
+    
+        // Ganti dengan konfigurasi Firebase Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyAdA7y8H2Cy3YWZX8kbnKJbcQprOTP23tU",
+            authDomain: "tokobukuonlinesaya-f9936.firebaseapp.com",
+            projectId: "tokobukuonlinesaya-f9936",
+            storageBucket: "tokobukuonlinesaya-f9936.appspot.com",
+            messagingSenderId: "527175870416",
+            appId: "1:527175870416:web:4c805d047adb676ca1fbd5",
+            measurementId: "G-F0WZBKSVP9"
+        };
+        
+        // Cek apakah konfigurasi Firebase sudah diisi
+        const isFirebaseConfigValid = () => {
+             return !Object.values(firebaseConfig).some(value => value.startsWith("GANTI_DENGAN_"));
+        };
+
+        let auth, db, functions, FieldValue;
+
+        if (isFirebaseConfigValid()) {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            auth = firebase.auth();
+            db = firebase.firestore();
+            functions = firebase.functions();
+            FieldValue = firebase.firestore.FieldValue;
+        }
+
+        const ADMIN_WHATSAPP = "6285654123970"; // Ganti dengan nomor WA Admin
+
+        // --- Komponen Ikon ---
+        const Icon = ({ children, size = 24, className = '' }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>);
+        const Home = (props) => <Icon {...props}><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></Icon>;
+        const User = (props) => <Icon {...props}><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></Icon>;
+        const DollarSign = (props) => <Icon {...props}><line x1="12" x2="12" y1="2" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></Icon>;
+        const Shield = (props) => <Icon {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></Icon>;
+        const Share2 = (props) => <Icon {...props}><circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><line x1="8.59" x2="15.42" y1="13.51" y2="17.49" /><line x1="15.41" x2="8.59" y1="6.51" y2="10.49" /></Icon>;
+        const LogOut = (props) => <Icon {...props}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" x2="9" y1="12" y2="12" /></Icon>;
+        const SearchIcon = (props) => <Icon {...props}><circle cx="11" cy="11" r="8" /><line x1="21" x2="16.65" y1="21" y2="16.65" /></Icon>;
+        const Copy = (props) => <Icon {...props}><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></Icon>;
+        const BookOpen = (props) => <Icon {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></Icon>;
+        const ChevronLeft = (props) => <Icon {...props}><path d="m15 18-6-6 6-6" /></Icon>;
+        const ChevronRight = (props) => <Icon {...props}><path d="m9 18 6-6-6-6" /></Icon>;
+        const ArrowUp = (props) => <Icon {...props}><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></Icon>;
+        const ArrowDown = (props) => <Icon {...props}><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></Icon>;
+        const Trash2 = (props) => <Icon {...props}><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></Icon>;
+        const Edit = (props) => <Icon {...props}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></Icon>;
+        const Sun = (props) => <Icon {...props}><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="m4.93 4.93 1.41 1.41" /><path d="m17.66 17.66 1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="m6.34 17.66-1.41 1.41" /><path d="m19.07 4.93-1.41 1.41" /></Icon>;
+        const Moon = (props) => <Icon {...props}><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" /></Icon>;
+        const Star = (props) => <Icon {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></Icon>;
+        const MessageSquare = (props) => <Icon {...props}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></Icon>;
+        const CheckCircle = (props) => <Icon {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></Icon>;
+        const AlertTriangle = (props) => <Icon {...props}><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></Icon>;
+
+        const TailSpin = ({className = ''}) => (
+            <div className={`flex justify-center items-center h-full ${className}`}>
+                <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+
+        const FirebaseConfigError = () => (
+            <div className="flex flex-col items-center justify-center h-screen p-4 text-center bg-yellow-50">
+                <AlertTriangle size={60} className="text-yellow-500 mb-4" />
+                <h1 className="text-2xl font-bold text-yellow-800 mb-2">Konfigurasi Firebase Diperlukan</h1>
+                <p className="text-yellow-700 max-w-md">
+                    Aplikasi ini belum terhubung ke database. Silakan buka file <code>index.html</code>, cari objek <code>firebaseConfig</code>, dan ganti nilai placeholder dengan kredensial asli dari proyek Firebase Anda.
+                </p>
+            </div>
+        );
+
+        const AppContext = createContext();
+
+        const App = () => {
+            const [novels, setNovels] = useState([]);
+            const [banners, setBanners] = useState([]);
+            const [homepageSections, setHomepageSections] = useState([]);
+            const [user, setUser] = useState(null);
+            const [userProfile, setUserProfile] = useState(null);
+            const [isAuthLoading, setIsAuthLoading] = useState(true);
+            const [isProfileReady, setIsProfileReady] = useState(false);
+            const [currentPage, setCurrentPage] = useState({ page: 'home', data: {} });
+            const [modal, setModal] = useState({ isVisible: false, title: '', content: '' });
+            const [authModal, setAuthModal] = useState({ isVisible: false, view: 'login' });
+            const [isPageExiting, setIsPageExiting] = useState(false);
+            const [runningText, setRunningText] = useState('');
+            const [adminTab, setAdminTab] = useState('users');
+
+            if (!isFirebaseConfigValid()) {
+                return <FirebaseConfigError />;
+            }
+
+            useEffect(() => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const refId = urlParams.get('ref');
+                if (refId) sessionStorage.setItem('referralId', refId);
+            }, []);
+
+            useEffect(() => {
+                const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
+                    setIsProfileReady(false);
+                    if (firebaseUser) {
+                        setUser(firebaseUser);
+                        const userDocRef = db.collection('users').doc(firebaseUser.uid);
+                        const unsubscribeProfile = userDocRef.onSnapshot(doc => {
+                            setUserProfile(doc.exists ? { uid: doc.id, ...doc.data() } : null);
+                            setIsAuthLoading(false);
+                            setIsProfileReady(true);
+                        }, error => {
+                            console.error("Error fetching user profile:", error);
+                            setIsAuthLoading(false); setIsProfileReady(true);
+                        });
+                        return () => unsubscribeProfile();
+                    } else {
+                        setUser(null); setUserProfile(null);
+                        setIsAuthLoading(false); setIsProfileReady(true);
+                    }
+                });
+                return () => unsubscribe();
+            }, []);
+
+            useEffect(() => {
+                const unsubscribeNovels = db.collection('novels').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
+                    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), createdAt: doc.data().createdAt?.toDate() }));
+                    setNovels(data);
+                }, (error) => console.error("Error fetching novels:", error));
+
+                const unsubscribeSettings = db.collection('settings').doc('homepage').onSnapshot(doc => {
+                    if (doc.exists) {
+                        const data = doc.data();
+                        setBanners(data.banners || []);
+                        setHomepageSections(data.sections || []);
+                        setRunningText(data.runningText || '');
+                    }
+                }, error => console.error("Error fetching settings:", error));
+
+                return () => { unsubscribeNovels(); unsubscribeSettings(); };
+            }, []);
+
+            const handleLogout = () => { auth.signOut(); showPage('home'); };
+            const openModal = (title, content, actions = null) => setModal({ isVisible: true, title, content, actions });
+            const closeModal = () => setModal({ isVisible: false, title: '', content: '', actions: null });
+            
+            const showPage = (pageId, data = {}) => {
+                const noScrollTopPages = ['novel-detail-page', 'chapter-content-page', 'chapter-list-page'];
+                
+                setIsPageExiting(true);
+                setTimeout(() => {
+                    setCurrentPage({ page: pageId, data: data });
+                    if (!noScrollTopPages.includes(pageId)) {
+                        window.scrollTo(0, 0);
+                    }
+                    setIsPageExiting(false);
+                }, 300);
+            };
+            
+            const isAdmin = userProfile?.role === 'admin';
+            const showAdminInterface = isAdmin && currentPage.page === 'admin';
+            const hideHeaderAndNav = currentPage.page === 'chapter-content-page';
+
+            const renderPage = () => {
+                if (isAuthLoading) return <div className="flex justify-center items-center h-screen"><TailSpin /></div>;
+                
+                const sensitivePages = ['profile', 'affiliate', 'admin'];
+                if (sensitivePages.includes(currentPage.page) && !isProfileReady) {
+                    return <div className="flex justify-center items-center h-screen"><TailSpin /></div>;
+                }
+
+                const props = { novelId: currentPage.data.novelId, chapterId: currentPage.data.chapterId };
+                switch (currentPage.page) {
+                    case 'home': return <HomePage />;
+                    case 'profile': return <ProfilePage />;
+                    case 'topup': return <TopUpPage />;
+                    case 'admin': return isAdmin ? <AdminPage /> : <DummyPage title="Akses Ditolak" description="Anda tidak memiliki izin untuk melihat halaman ini." icon={<Shield size={60} />} />;
+                    case 'affiliate': return <AffiliatePage />;
+                    case 'novel-detail-page': return <NovelDetailPage {...props} />;
+                    case 'chapter-list-page': return <ChapterListPage {...props} />;
+                    case 'chapter-content-page': return <ChapterContentPage {...props} />;
+                    case 'logout': return <DummyPage title="Anda Telah Logout" description="Terima kasih telah mengunjungi Toko Buku Fatiha." icon={<LogOut size={60} />} />;
+                    default: return <HomePage />;
+                }
+            };
+
+            const contextValue = {
+                user, userProfile, userRole: userProfile?.role || 'anonymous',
+                novels, banners, homepageSections, runningText,
+                showPage, openModal, closeModal, setAuthModal, isAuthLoading, isProfileReady, handleLogout,
+                currentPage,
+                adminTab, setAdminTab 
+            };
+
+            return (
+                <AppContext.Provider value={contextValue}>
+                    <div className="relative font-sans min-h-screen">
+                        {showAdminInterface ? (
+                            <AdminHeader />
+                        ) : !hideHeaderAndNav && (
+                            <Fragment>
+                                <header className="p-4 text-center sticky top-0 z-20 glass-header">
+                                    <h1 className="text-2xl font-black text-gradient">Toko Buku Fatiha</h1>
+                                </header>
+                            </Fragment>
+                        )}
+                        
+                        <main className={`container mx-auto p-4 max-w-4xl transition-opacity duration-300 ${isPageExiting ? 'opacity-0' : 'opacity-100'} ${showAdminInterface || hideHeaderAndNav ? 'pb-12' : 'pb-28'}`}>
+                            {renderPage()}
+                        </main>
+                        
+                        {!showAdminInterface && !hideHeaderAndNav && <BottomNavBar />}
+                        
+                        <Modal isVisible={modal.isVisible} title={modal.title} content={modal.content} onClose={closeModal} actions={modal.actions} />
+                        <AuthModal isVisible={authModal.isVisible} view={authModal.view} onClose={() => setAuthModal({ isVisible: false, view: 'login' })} />
+                    </div>
+                </AppContext.Provider>
+            );
+        };
+
+        // --- KOMPONEN NAVIGASI ---
+
+        const AdminHeader = () => {
+            const { showPage, setAdminTab } = useContext(AppContext);
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            
+            return (
+                <header className="flex justify-between items-center p-4 sticky top-0 z-40 glass-header">
+                    <h1 className="text-2xl font-black text-gradient cursor-pointer" onClick={() => showPage('admin')}>Dasbor Admin</h1>
+                    <div className="relative">
+                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2 rounded-full hover:bg-gray-200/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        </button>
+                        {isMenuOpen && (
+                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl z-50 ring-1 ring-black ring-opacity-5">
+                                <a href="#" onClick={(e) => { e.preventDefault(); showPage('admin'); setAdminTab('users'); setIsMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Top Up User</a>
+                                <a href="#" onClick={(e) => { e.preventDefault(); showPage('home'); setIsMenuOpen(false); }} className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Lihat Situs</a>
+                            </div>
+                        )}
+                    </div>
+                </header>
+            );
+        };
+        
+        const BottomNavBar = () => {
+            const { user, showPage, setAuthModal, currentPage } = useContext(AppContext);
+
+            const navItems = [
+                { name: 'Beranda', page: 'home', icon: Home, show: true },
+                { name: 'Saldo', page: 'topup', icon: DollarSign, show: !!user },
+                { name: 'Afiliasi', page: 'affiliate', icon: Share2, show: !!user },
+                { 
+                    name: 'Akun', 
+                    page: 'profile', 
+                    icon: User, 
+                    show: true,
+                    action: (e) => {
+                        e.preventDefault();
+                        if (user) {
+                            showPage('profile');
+                        } else {
+                            setAuthModal({ isVisible: true, view: 'login' });
+                        }
+                    } 
+                }
+            ];
+
+            return (
+                <nav className="fixed bottom-0 left-0 right-0 h-20 px-4 glass-bottom-nav z-30">
+                    <div className="flex justify-around items-center h-full max-w-lg mx-auto">
+                        {navItems.filter(item => item.show).map(item => (
+                            <a 
+                                href="#"
+                                key={item.name}
+                                onClick={item.action ? item.action : (e) => { e.preventDefault(); showPage(item.page); }}
+                                className={`flex flex-col items-center justify-center w-16 h-16 text-gray-600 transition-all duration-300 bottom-nav-item ${currentPage.page === item.page ? 'active' : ''}`}
+                            >
+                                <item.icon size={28} className="mb-1" />
+                                <span className="text-xs nav-text">{item.name}</span>
+                            </a>
+                        ))}
+                    </div>
+                </nav>
+            );
+        };
+
+        const ProfilePage = () => {
+            const { user, userProfile, openModal, isAuthLoading, isProfileReady, handleLogout, showPage } = useContext(AppContext);
+            const [isEditing, setIsEditing] = useState(false);
+            const [newName, setNewName] = useState(userProfile?.name || '');
+            const [newPhotoUrl, setNewPhotoUrl] = useState(userProfile?.photoURL || '');
+            const isAdmin = userProfile?.role === 'admin';
+
+            useEffect(() => {
+                if (userProfile) {
+                    setNewName(userProfile.name);
+                    setNewPhotoUrl(userProfile.photoURL);
+                }
+            }, [userProfile]);
+
+            const handleProfileUpdate = async () => {
+                if (!newName.trim()) {
+                    openModal('Error', 'Nama tidak boleh kosong.');
+                    return;
+                }
+                try {
+                    await db.collection('users').doc(user.uid).update({
+                        name: newName,
+                        photoURL: newPhotoUrl
+                    });
+                    setIsEditing(false);
+                    openModal('Sukses', 'Profil berhasil diperbarui.');
+                } catch (error) {
+                    openModal('Error', 'Gagal memperbarui profil.');
+                }
+            };
+
+            if (isAuthLoading || !isProfileReady) return <div className="text-center mt-8"><TailSpin /></div>;
+            if (!user) return <DummyPage title="Profil" description="Login untuk melihat profil Anda." icon={<User size={60} className="text-gray-800"/>} />;
+            if (!userProfile) return <div className="text-center mt-8"><p>Gagal memuat profil.</p></div>;
+
+            return (
+                <div className="mt-4 space-y-6 fade-in">
+                    <div className="bg-white/80 p-6 rounded-2xl shadow-lg text-center backdrop-blur-sm">
+                        <img src={userProfile.photoURL} alt="Avatar" className="w-28 h-28 rounded-full mx-auto border-4 border-white shadow-xl" />
+                        {!isEditing ? (
+                            <>
+                                <h2 className="text-3xl font-bold mt-4 text-gray-900">{userProfile.name}</h2>
+                                <p className="text-gray-500">{userProfile.email}</p>
+                                <div className="flex flex-col gap-3 mt-6 max-w-xs mx-auto">
+                                    {isAdmin && (
+                                        <button onClick={() => showPage('admin')} className="btn-gradient px-6 py-3 rounded-lg font-semibold text-base">
+                                            Dasbor Admin
+                                        </button>
+                                    )}
+                                    <button onClick={() => setIsEditing(true)} className="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg font-semibold hover:bg-gray-300 transition-all">Edit Profil</button>
+                                    <button onClick={handleLogout} className="bg-red-100 text-red-600 px-6 py-2 rounded-lg font-semibold hover:bg-red-200 transition-all">Logout</button>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="mt-4 space-y-4 max-w-sm mx-auto">
+                                <input type="text" value={newName} onChange={e => setNewName(e.target.value)} placeholder="Nama Baru" className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-indigo-500 outline-none transition text-gray-900" />
+                                <input type="url" value={newPhotoUrl} onChange={e => setNewPhotoUrl(e.target.value)} placeholder="URL Foto Baru" className="w-full p-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-indigo-500 outline-none transition text-gray-900" />
+                                <div className="flex gap-2">
+                                    <button onClick={() => setIsEditing(false)} className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold">Batal</button>
+                                    <button onClick={handleProfileUpdate} className="flex-1 btn-gradient px-4 py-2 rounded-lg">Simpan</button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const DummyPage = memo(({ title, description, icon }) => (
+            <div className="flex flex-col items-center justify-center text-center p-8 bg-white/80 rounded-2xl shadow-lg mt-8 fade-in">
+                <div className="text-indigo-500 mb-4">{icon}</div>
+                <h2 className="text-3xl font-bold mb-2 text-gray-800">{title}</h2>
+                <p className="text-gray-600 max-w-sm">{description}</p>
+            </div>
+        ));
+
+        const Modal = ({ isVisible, title, content, onClose, actions }) => {
+            if (!isVisible) return null;
+            return (
+                <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 relative">
+                        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-500 z-10">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                        <h4 className="text-xl font-bold mb-4 text-gradient">{title}</h4>
+                        <div className="text-gray-700">{typeof content === 'string' ? <p>{content}</p> : content}</div>
+                        {actions && (
+                            <div className="flex justify-end gap-3 mt-6">
+                                {actions.map((action, index) => (
+                                    <button key={index} onClick={action.onClick} className={action.className}>{action.label}</button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const AuthModal = ({ isVisible, view: initialView, onClose }) => {
+            const { openModal } = useContext(AppContext);
+            const [view, setView] = useState(initialView);
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [name, setName] = useState('');
+            const [error, setError] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+            
+            useEffect(() => { setView(initialView); setError(''); }, [initialView, isVisible]);
+
+            const handleLogin = async (e) => {
+                e.preventDefault(); setIsLoading(true); setError('');
+                try { await auth.signInWithEmailAndPassword(email, password); onClose(); } 
+                catch (err) { setError('Email atau password salah.'); }
+                setIsLoading(false);
+            };
+
+            const handleRegister = async (e) => {
+                e.preventDefault();
+                if (name.trim() === '') { setError('Nama tidak boleh kosong.'); return; }
+                setIsLoading(true); setError('');
+                
+                try {
+                    const cred = await auth.createUserWithEmailAndPassword(email, password);
+                    const userRole = email.toLowerCase() === 'admin@mail.com' ? 'admin' : 'reader';
+                    const referralId = sessionStorage.getItem('referralId');
+                    
+                    const userDocRef = db.collection('users').doc(cred.user.uid);
+
+                    await db.runTransaction(async (transaction) => {
+                        const userDoc = await transaction.get(userDocRef);
+                        const existingData = userDoc.data() || {};
+
+                        const newProfileData = {
+                            name: name,
+                            email: email,
+                            role: userRole,
+                            photoURL: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=150`,
+                            ...(referralId && !existingData.referredBy && { referredBy: referralId }),
+                            balance: existingData.balance || 0,
+                            affiliateBalance: existingData.affiliateBalance || 0,
+                            purchasedChapters: existingData.purchasedChapters || [],
+                        };
+                        
+                        transaction.set(userDocRef, newProfileData, { merge: true });
+                    });
+
+                    if (referralId) {
+                        sessionStorage.removeItem('referralId');
+                    }
+                    
+                    onClose();
+                    openModal("Registrasi Berhasil", "Selamat datang! Anda sekarang bisa login.");
+                } catch (err) {
+                    console.error("Registration Error: ", err);
+                    setError(err.code === 'auth/email-already-in-use' ? 'Email ini sudah terdaftar.' : 'Gagal mendaftar. Coba lagi.');
+                }
+                setIsLoading(false);
+            };
+
+            if (!isVisible) return null;
+            const isLogin = view === 'login';
+            return (
+                <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 fade-in">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 relative">
+                        <button onClick={onClose} className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-500 z-10">&times;</button>
+                        <form onSubmit={isLogin ? handleLogin : handleRegister}>
+                            <h4 className="text-2xl font-bold mb-5 text-center text-gradient">{isLogin ? 'Login' : 'Daftar Akun'}</h4>
+                            {error && <p className="text-red-500 text-sm mb-3 bg-red-100 p-2 rounded-lg text-center">{error}</p>}
+                            {!isLogin && <input type="text" placeholder="Nama Lengkap" value={name} onChange={e => setName(e.target.value)} className="w-full p-3 border-2 border-gray-200 rounded-lg mb-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition" required />}
+                            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full p-3 border-2 border-gray-200 rounded-lg mb-3 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition" required />
+                            <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full p-3 border-2 border-gray-200 rounded-lg mb-4 focus:border-indigo-500 focus:ring-indigo-500 outline-none transition" required />
+                            <button type="submit" disabled={isLoading} className="w-full p-3 rounded-lg font-semibold disabled:bg-gray-400 btn-gradient">{isLoading ? 'Loading...' : (isLogin ? 'Login' : 'Daftar')}</button>
+                            <p className="text-center text-sm mt-4 text-gray-600">
+                                {isLogin ? 'Belum punya akun?' : 'Sudah punya akun?'}
+                                <a href="#" onClick={(e) => {e.preventDefault(); setView(isLogin ? 'register' : 'login')}} className="font-semibold text-indigo-600 hover:underline ml-1">
+                                    {isLogin ? 'Daftar di sini' : 'Login di sini'}
+                                </a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        const StarRating = ({ rating = 0, reviewCount, className = '' }) => {
+            const fullStars = Math.round(rating);
+            const emptyStars = 5 - fullStars;
+            return (
+                <div className={`flex items-center gap-2 ${className}`}>
+                    <div className="flex">
+                        {[...Array(fullStars)].map((_, i) => <Star key={`full-${i}`} className="w-5 h-5 text-amber-400 fill-amber-400" />)}
+                        {[...Array(emptyStars)].map((_, i) => <Star key={`empty-${i}`} className="w-5 h-5 text-gray-300" />)}
+                    </div>
+                    {reviewCount && <span className="text-sm text-gray-500">({reviewCount} ulasan)</span>}
+                </div>
+            );
+        };
+
+        const RunningText = () => {
+            const { runningText } = useContext(AppContext);
+            if (!runningText) return null;
+
+            return (
+                <div className="mt-6 w-full overflow-hidden">
+                    <div className="relative flex">
+                        <p className="py-2 whitespace-nowrap marquee-text font-semibold text-gray-700">
+                            {runningText}
+                        </p>
+                        <p className="absolute top-0 py-2 whitespace-nowrap marquee-text font-semibold text-gray-700" aria-hidden="true">
+                            {runningText}
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+        
+        const HomePage = () => {  
+            const { novels, banners, homepageSections, showPage, setAuthModal, user, userProfile, isAuthLoading } = useContext(AppContext);
+            const [currentBanner, setCurrentBanner] = useState(0);
+
+            useEffect(() => {
+                if (banners.length <= 1) return;
+                const timer = setInterval(() => {
+                    setCurrentBanner(prev => (prev === banners.length - 1 ? 0 : prev + 1));
+                }, 8000);
+                return () => clearInterval(timer);
+            }, [banners]);
+
+            if (isAuthLoading) {
+                return <TailSpin className="mt-10" />;
+            }
+
+            return (
+                <div className="fade-in">
+                    <section className="bg-white/80 p-4 rounded-2xl shadow-lg mt-4 backdrop-blur-sm">
+                        <div className="flex items-center border-2 border-gray-200 rounded-full p-1 bg-white focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-300 transition-all">
+                            <input type="text" placeholder="Cari novel favoritmu..." className="flex-grow p-2 bg-transparent outline-none text-gray-800 text-sm" />
+                            <button className="w-10 h-10 btn-gradient rounded-full flex items-center justify-center hover:bg-orange-600 shadow-none"><SearchIcon size={20} /></button>
+                        </div>
+                        {user ? (
+                            <p className="text-center text-gray-500 mt-3 text-sm">
+                                Saldo: <strong className="text-gray-900 font-semibold text-base">Rp {new Intl.NumberFormat('id-ID').format(userProfile?.balance || 0)}</strong>
+                            </p>
+                        ) : (
+                            <p className="text-center text-gray-600 mt-3 text-sm">
+                                <a href="#" onClick={(e) => { e.preventDefault(); setAuthModal({ isVisible: true, view: 'login' }) }} className="font-semibold text-indigo-600 hover:underline">Login</a> untuk membaca dan membeli novel.
+                            </p>
+                        )}
+                    </section>
+                    
+                    {banners.length > 0 && (
+                        <div className="mt-6 overflow-hidden rounded-2xl shadow-xl relative h-40 sm:h-64">
+                            {banners.map((banner, index) => (
+                                <div
+                                    key={index}
+                                    className={`w-full h-full absolute top-0 left-0 transition-opacity duration-1000 ${index === currentBanner ? 'opacity-100 z-10' : 'opacity-0'}`}
+                                >
+                                    <img  
+                                        src={banner}  
+                                        alt={`Banner ${index + 1}`}  
+                                        className="w-full h-full object-cover ken-burns"
+                                    />
+                                    <div className="absolute inset-0 bg-black/20"></div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <RunningText />
+                    
+                    {homepageSections.map((section, index) => {
+                        const novelsToShow = novels.filter(novel => section.novelIds.includes(novel.id));
+                        if(novelsToShow.length === 0) return null;
+                        return <NovelSection key={section.id} title={section.title} novels={novelsToShow} showPage={showPage} animationDelay={index * 150} />;
+                    })}
+
+                    <section className="mt-6">
+                        <h2 className="text-2xl font-bold mb-4 px-1 text-gray-900">Semua Novel</h2>
+                        {novels.length > 0 ? (
+                            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-x-3 gap-y-4 stagger-in">
+                                {novels.map((novel, index) => (
+                                    <div key={novel.id} style={{ animationDelay: `${index * 50}ms` }}>
+                                      <NovelCard novel={novel} showPage={showPage} />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            !isAuthLoading && <p className="text-center text-gray-500 my-8">Belum ada novel yang ditambahkan.</p>
+                        )}
+                    </section>
+                </div>
+            );
+        };
+        
+        const NovelCard = memo(({ novel, showPage }) => (
+            <div 
+                className="cursor-pointer group w-full h-full flex flex-col" 
+                onClick={() => showPage('novel-detail-page', { novelId: novel.id })}
+            >
+                <div className="relative w-full aspect-[2/3] rounded-lg shadow-lg overflow-hidden transition-all duration-300 group-hover:shadow-2xl group-hover:-translate-y-2 group-hover:shadow-indigo-300/50">
+                    <img 
+                        src={novel.coverUrl} 
+                        alt={`Cover ${novel.title}`} 
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                        loading="lazy" 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                </div>
+                <h3 className="mt-2 text-sm font-semibold text-gray-800 line-clamp-2 group-hover:text-indigo-600 transition-colors">
+                    {novel.title}
+                </h3>
+            </div>
+        ));
+
+        const NovelSection = memo(({ title, novels, showPage, animationDelay }) => {
+            const scrollContainerRef = useRef(null);
+
+            const scroll = (direction) => {
+                if (scrollContainerRef.current) {
+                    const scrollAmount = scrollContainerRef.current.offsetWidth * 0.9;
+                    scrollContainerRef.current.scrollBy({ left: scrollAmount * direction, behavior: 'smooth' });
+                }
+            };
+            
+            return (
+                <section className="mt-6 relative fade-in" style={{ animationDelay: `${animationDelay}ms` }}>
+                    <div className="flex justify-between items-center mb-3 px-1">
+                        <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+                        <div className="hidden sm:flex gap-2">
+                             <button onClick={() => scroll(-1)} className="bg-white/80 rounded-full p-2 shadow-md hover:bg-white hover:shadow-lg transition-all"><ChevronLeft size={20}/></button>
+                             <button onClick={() => scroll(1)} className="bg-white/80 rounded-full p-2 shadow-md hover:bg-white hover:shadow-lg transition-all"><ChevronRight size={20}/></button>
+                        </div>
+                    </div>
+                    <div ref={scrollContainerRef} className="flex overflow-x-auto scrollbar-hide space-x-3 pb-4 -mx-4 px-4">
+                        {novels.map(novel => (
+                            <div key={novel.id} className="w-28 sm:w-32 flex-shrink-0">
+                                <NovelCard novel={novel} showPage={showPage} />
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        });
+        
+        const NovelDetailPage = ({ novelId }) => {
+            const { showPage, novels } = useContext(AppContext);
+            const [novel, setNovel] = useState(null);
+            const [isLoading, setIsLoading] = useState(true);
+
+            useEffect(() => {
+                const foundNovel = novels.find(n => n.id === novelId);
+                if (foundNovel) {
+                    setNovel(foundNovel);
+                    setIsLoading(false);
+                } else if (novelId) {
+                    const unsubscribe = db.collection('novels').doc(novelId).onSnapshot(doc => {
+                        if(doc.exists) {
+                           setNovel({ id: doc.id, ...doc.data() });
+                        }
+                        setIsLoading(false);
+                    });
+                    return () => unsubscribe();
+                }
+            }, [novelId, novels]);
+            
+            if (isLoading) return <div className="text-center mt-8"><TailSpin /></div>;
+            if (!novel) return <DummyPage title="Novel Tidak Ditemukan" icon={<BookOpen size={60} className="text-gray-800"/>} />;
+
+            const handleBuyPrinted = () => {
+                const referralId = sessionStorage.getItem('referralId');
+                let message = `Halo, saya tertarik untuk membeli novel cetak "${novel.title}" karya ${novel.author}.`;
+                if(referralId) {
+                    message += `\n\n(Pembelian melalui link afiliasi: ${referralId})`
+                }
+                window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank');
+            };
+
+            const novelRating = novel.rating || 4.5;
+            const novelReviews = novel.reviews || Math.floor(Math.random() * 200) + 50;
+
+            return (
+                <div className="mt-4 fade-in">
+                    <div className="flex flex-col sm:flex-row gap-8">
+                        <div className="w-2/3 sm:w-1/3 mx-auto flex-shrink-0">
+                            <img src={novel.coverUrl} alt={`Cover ${novel.title}`} className="w-full aspect-[2/3] object-cover rounded-xl shadow-2xl -rotate-3 transition-transform hover:rotate-0" loading="lazy" />
+                        </div>
+                        <div className="flex-1 text-center sm:text-left">
+                            <h2 className="text-4xl font-black text-gray-900">{novel.title}</h2>
+                            <p className="text-xl text-gray-500 mt-1">oleh {novel.author}</p>
+                            <StarRating rating={novelRating} reviewCount={novelReviews} className="mt-3 justify-center sm:justify-start" />
+                            <p className="text-indigo-500 font-semibold text-sm mt-3">{novel.genre}</p>
+                            <div className="flex flex-col gap-3 mt-6">
+                                <button onClick={() => showPage('chapter-list-page', { novelId: novel.id })} className="btn-gradient p-3 rounded-lg text-lg">Baca Online</button>
+                                <button onClick={handleBuyPrinted} className="bg-orange-500 text-white p-3 rounded-lg font-semibold hover:bg-orange-600 transition-all hover:shadow-lg hover:-translate-y-0.5">Beli Novel Cetak - Rp {new Intl.NumberFormat('id-ID').format(novel.pricePrinted)}</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="mt-8 bg-white/80 p-6 rounded-2xl shadow-lg backdrop-blur-sm">
+                        <h3 className="text-2xl font-bold mb-3 border-b-2 border-indigo-200 pb-2 text-gray-900">Sinopsis</h3>
+                        <p className="text-gray-800 text-justify leading-relaxed whitespace-pre-wrap">{novel.synopsis}</p>
+                    </div>
+                </div>
+            );
+        };
+
+        const ChapterListPage = ({ novelId }) => { 
+            const { showPage, novels, userProfile } = useContext(AppContext);
+            const [chapters, setChapters] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
+            const novel = novels.find(n => n.id === novelId);
+
+            useEffect(() => {
+                if (!novelId) return;
+                const unsubscribe = db.collection('novels').doc(novelId).collection('chapters').orderBy('number').onSnapshot(snapshot => {
+                    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    setChapters(data);
+                    setIsLoading(false);
+                }, error => {
+                    console.error("Error fetching chapters:", error);
+                    setIsLoading(false);
+                });
+                return () => unsubscribe();
+            }, [novelId]);
+
+            if (!novel) return <div className="text-center mt-8"><TailSpin /></div>;
+
+            return (
+                <div className="mt-4 fade-in">
+                    <div className="text-center mb-8">
+                        <h2 className="text-3xl font-bold text-gray-900">{novel.title}</h2>
+                        <p className="text-gray-500">oleh {novel.author}</p>
+                    </div>
+                    {isLoading ? <TailSpin /> : (
+                        <div className="flex flex-col gap-3 stagger-in">
+                            {chapters.map((ch, index) => {
+                                const isPurchased = userProfile?.purchasedChapters?.includes(ch.id);
+                                const isFree = ch.price === 0;
+
+                                return (
+                                <div key={ch.id} onClick={() => showPage('chapter-content-page', { novelId, chapterId: ch.id })} className="bg-white/80 p-4 rounded-xl shadow-md flex justify-between items-center cursor-pointer hover:shadow-xl hover:bg-white hover:-translate-y-1 transition-all duration-300" style={{ animationDelay: `${index * 50}ms` }}>
+                                    <div>
+                                        <span className="font-semibold text-lg text-gray-900">{`Bab ${ch.number}`}</span>
+                                        <span className="text-gray-700 ml-2">{ch.title}</span>
+                                    </div>
+                                    
+                                    {isPurchased && !isFree ? (
+                                        <div className="flex items-center gap-1 font-bold text-sm px-3 py-1 rounded-full text-green-800 bg-green-200">
+                                            <CheckCircle size={16} />
+                                            <span>Dimiliki</span>
+                                        </div>
+                                    ) : (
+                                        <span className={`font-bold text-sm px-3 py-1 rounded-full ${isFree ? 'text-green-800 bg-green-200' : 'text-indigo-800 bg-indigo-200'}`}>
+                                            {isFree ? 'Gratis' : `Rp ${new Intl.NumberFormat('id-ID').format(ch.price)}`}
+                                        </span>
+                                    )}
+                                </div>
+                            )})}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+        
+        const ChapterContentPage = ({ novelId, chapterId }) => {
+            const { showPage, openModal, closeModal, user, userProfile, setAuthModal, novels } = useContext(AppContext);
+            const [chapter, setChapter] = useState(null);
+            const [isLoading, setIsLoading] = useState(true);
+            const [fontSize, setFontSize] = useState(18);
+            const [theme, setTheme] = useState('light');
+            
+            const isUnlocked = chapter && (chapter.price === 0 || userProfile?.purchasedChapters?.includes(chapterId));
+
+            useEffect(() => {
+                if (!novelId || !chapterId) return;
+                const unsubscribe = db.collection('novels').doc(novelId).collection('chapters').doc(chapterId).onSnapshot(doc => {
+                    if (doc.exists) setChapter({ id: doc.id, ...doc.data() });
+                    else setChapter(null);
+                    setIsLoading(false);
+                }, error => console.error("Error fetching chapter content:", error));
+                return () => unsubscribe();
+            }, [novelId, chapterId]);
+            
+            useEffect(() => {
+                if (isLoading || isUnlocked || !chapter) return;
+                if (!user) {
+                    setAuthModal({ isVisible: true, view: 'login' });
+                    openModal('Akses Terbatas', 'Anda harus login untuk membaca bab berbayar.');
+                } else {
+                    openModal(
+                        'Beli Bab Ini?',
+                        `Harga bab "${chapter.title}" adalah Rp ${new Intl.NumberFormat('id-ID').format(chapter.price)}. Saldo Anda: Rp ${new Intl.NumberFormat('id-ID').format(userProfile.balance)}.`,
+                        [
+                            { label: 'Batal', onClick: () => { closeModal(); showPage('chapter-list-page', { novelId }); }, className: 'bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold' },
+                            { label: 'Beli Sekarang', onClick: handlePurchase, className: 'btn-gradient px-4 py-2 rounded-lg' }
+                        ]
+                    );
+                }
+            }, [isLoading, isUnlocked, user, chapter, userProfile]);
+
+            const handlePurchase = async () => {
+                if (!user || !chapter) return;
+                if (userProfile.balance >= chapter.price) {
+                    const userRef = db.collection('users').doc(user.uid);
+                    const batch = db.batch();
+
+                    batch.update(userRef, {
+                        balance: FieldValue.increment(-chapter.price),
+                        purchasedChapters: FieldValue.arrayUnion(chapter.id)
+                    });
+
+                    if (userProfile.referredBy) {
+                        const novel = novels.find(n => n.id === novelId);
+                        const commissionRate = novel?.commissionRate || 0.1;
+                        const commissionAmount = chapter.price * commissionRate;
+
+                        if (commissionAmount > 0) {
+                            const affiliateRef = db.collection('users').doc(userProfile.referredBy);
+                            batch.update(affiliateRef, {
+                                affiliateBalance: FieldValue.increment(commissionAmount)
+                            });
+                        }
+                    }
+
+                    await batch.commit();
+                    
+                    closeModal();
+                    openModal('Pembelian Berhasil', `Bab "${chapter.title}" berhasil dibuka.`);
+                } else {
+                    closeModal();
+                    openModal('Saldo Tidak Cukup', 'Saldo Anda tidak cukup. Silakan lakukan Top Up.');
+                }
+            };
+
+            if (isLoading) return <div className="fixed inset-0 bg-white flex items-center justify-center z-30"><TailSpin /></div>;
+            if (!chapter) return <DummyPage title="Bab Tidak Ditemukan" icon={<BookOpen size={60} />} />;
+            
+            const themeClasses = { 
+                light: 'bg-gray-50 text-gray-800', 
+                sepia: 'bg-[#fbf5e9] text-[#5c4b38]', 
+                dark: 'bg-gray-900 text-gray-300' 
+            };
+            const controlThemeClasses = {
+                light: 'bg-white/80 border-gray-200',
+                sepia: 'bg-[#f2e9d9]/80 border-[#e3d5c0]',
+                dark: 'bg-gray-800/80 border-gray-700'
+            }
+
+            return (
+                <div className={`fixed inset-0 overflow-y-auto z-30 transition-colors duration-300 ${themeClasses[theme]}`}>
+                    <div className="container mx-auto p-4 max-w-3xl pb-24">
+                        <div className={`sticky top-0 z-10 flex justify-between items-center p-3 mb-6 rounded-b-2xl shadow-lg backdrop-blur-md transition-colors duration-300 ${controlThemeClasses[theme]}`}>
+                            <button onClick={() => showPage('chapter-list-page', { novelId })} className="flex items-center gap-1 text-indigo-600 hover:underline font-semibold"><ChevronLeft size={20} /> Kembali</button>
+                            <div className="flex gap-2">
+                                <button onClick={() => setFontSize(s => Math.max(14, s - 1))} className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${controlThemeClasses[theme]} hover:bg-gray-300/50`}>A-</button>
+                                <button onClick={() => setFontSize(s => Math.min(28, s + 1))} className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${controlThemeClasses[theme]} hover:bg-gray-300/50`}>A+</button>
+                                <button onClick={() => setTheme(t => t === 'light' ? 'sepia' : t === 'sepia' ? 'dark' : 'light')} className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all ${controlThemeClasses[theme]} hover:bg-gray-300/50`}>
+                                    {theme === 'light' && <Sun size={20} />}
+                                    {theme === 'sepia' && <BookOpen size={20} />}
+                                    {theme === 'dark' && <Moon size={20} />}
+                                </button>
+                            </div>
+                        </div>
+                        <h2 className="text-4xl font-bold text-center mb-4">{chapter.title}</h2>
+                        <p className="text-center text-sm text-gray-500 mb-8">(Bab {chapter.number})</p>
+                        <div className="whitespace-pre-wrap antialiased select-none" style={{ fontSize: `${fontSize}px`, lineHeight: 1.9 }}>
+                            {isUnlocked ? chapter.content : <div className="text-center font-semibold text-lg p-10 bg-gray-200/50 rounded-lg">*** Konten ini terkunci. Silakan beli untuk melanjutkan membaca. ***</div>}
+                        </div>
+                        
+                        {isUnlocked && <CommentSection novelId={novelId} chapterId={chapterId} />}
+
+                    </div>
+                </div>
+            );
+        };
+
+        const CommentSection = ({ novelId, chapterId }) => {
+            const { user, userProfile, setAuthModal } = useContext(AppContext);
+            const [comments, setComments] = useState([]);
+            const [newComment, setNewComment] = useState('');
+            const [isLoading, setIsLoading] = useState(true);
+
+            useEffect(() => {
+                const unsubscribe = db.collection('novels').doc(novelId)
+                                    .collection('chapters').doc(chapterId)
+                                    .collection('comments').orderBy('createdAt', 'desc')
+                                    .onSnapshot(snapshot => {
+                                        const fetchedComments = snapshot.docs.map(doc => ({
+                                            id: doc.id,
+                                            ...doc.data(),
+                                            createdAt: doc.data().createdAt?.toDate()
+                                        }));
+                                        setComments(fetchedComments);
+                                        setIsLoading(false);
+                                    });
+                return () => unsubscribe();
+            }, [novelId, chapterId]);
+
+            const handleCommentSubmit = async (e) => {
+                e.preventDefault();
+                if (!user) {
+                    setAuthModal({ isVisible: true, view: 'login' });
+                    return;
+                }
+                if (newComment.trim() === '') return;
+
+                await db.collection('novels').doc(novelId)
+                        .collection('chapters').doc(chapterId)
+                        .collection('comments').add({
+                            text: newComment,
+                            userId: user.uid,
+                            userName: userProfile.name,
+                            userPhotoURL: userProfile.photoURL,
+                            createdAt: FieldValue.serverTimestamp()
+                        });
+                
+                setNewComment('');
+            };
+            
+            const formatDate = (date) => {
+                if (!date) return 'beberapa saat lalu';
+                return new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' }).format(date);
+            }
+
+            return (
+                <div className="mt-12 pt-8 border-t-2 border-gray-300">
+                    <h3 className="text-2xl font-bold mb-6 flex items-center gap-3"><MessageSquare /> Komentar</h3>
+                    {user ? (
+                        <form onSubmit={handleCommentSubmit} className="mb-8">
+                            <textarea
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                placeholder="Tulis komentar Anda di sini..."
+                                className="w-full p-3 border-2 border-gray-200 bg-white rounded-lg focus:border-indigo-500 outline-none transition"
+                                rows="3"
+                            ></textarea>
+                            <button type="submit" className="mt-3 btn-gradient px-6 py-2 rounded-lg float-right">Kirim Komentar</button>
+                        </form>
+                    ) : (
+                        <p className="text-center p-4 bg-gray-100 rounded-lg text-gray-600">
+                            <a href="#" onClick={(e) => { e.preventDefault(); setAuthModal({ isVisible: true, view: 'login' }) }} className="font-semibold text-indigo-600 hover:underline">Login</a> untuk dapat berkomentar.
+                        </p>
+                    )}
+
+                    <div className="space-y-6">
+                        {isLoading && <p>Memuat komentar...</p>}
+                        {!isLoading && comments.length === 0 && <p className="text-gray-500 text-center">Belum ada komentar.</p>}
+                        {comments.map(comment => (
+                            <div key={comment.id} className="flex items-start gap-4">
+                                <img src={comment.userPhotoURL} alt={comment.userName} className="w-12 h-12 rounded-full shadow-md" />
+                                <div className="flex-1 bg-white/50 p-4 rounded-xl shadow-sm">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <p className="font-bold text-gray-800">{comment.userName}</p>
+                                        <p className="text-xs text-gray-500">{formatDate(comment.createdAt)}</p>
+                                    </div>
+                                    <p className="text-gray-700 whitespace-pre-wrap">{comment.text}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+        
+        const TopUpPage = () => {
+             const nominals = [15000, 25000, 100000, 150000, 200000, 250000];
+             
+             const handleTopUpClick = (nominal) => {
+                 const message = `Halo, saya mau top up saldo Toko Buku Fatiha sebesar Rp ${new Intl.NumberFormat('id-ID').format(nominal)}.`;
+                 window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank');
+             };
+
+             return (
+                    <div className="flex flex-col items-center text-center p-8 bg-white/80 rounded-2xl shadow-lg mt-8 fade-in backdrop-blur-sm">
+                            <div className="p-4 bg-gradient-to-br from-indigo-200 to-pink-200 rounded-full mb-4">
+                                <DollarSign size={40} className="text-indigo-600" strokeWidth={2} />
+                            </div>
+                            <h2 className="text-3xl font-bold mb-2 text-gray-900">Top Up Saldo</h2>
+                            <p className="text-gray-600 max-w-sm">Pilih nominal di bawah ini untuk melanjutkan pembayaran melalui WhatsApp Admin.</p>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 w-full mt-8">
+                                     {nominals.map(nominal => (
+                                         <button key={nominal} onClick={() => handleTopUpClick(nominal)} className="bg-white border-2 border-transparent rounded-lg p-4 font-semibold text-lg text-indigo-700 hover:border-indigo-500 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 transform">
+                                             Rp {new Intl.NumberFormat('id-ID').format(nominal)}
+                                         </button>
+                                     ))}
+                            </div>
+                      </div>
+             );
+        };
+
+        const AffiliatePage = () => {
+            const { user, userProfile, openModal, closeModal, isAuthLoading, isProfileReady, novels } = useContext(AppContext);
+            const [novelPotentials, setNovelPotentials] = useState([]);
+            const [isCalculating, setIsCalculating] = useState(true);
+
+            useEffect(() => {
+                const isEligible = userProfile?.role === 'affiliate' || userProfile?.role === 'admin';
+                if (novels.length > 0 && isEligible) {
+                    const calculatePotentials = async () => {
+                        setIsCalculating(true);
+                        const potentials = await Promise.all(novels.map(async (novel) => {
+                            try {
+                                const chaptersSnapshot = await db.collection('novels').doc(novel.id).collection('chapters').get();
+                                const totalChaptersPrice = chaptersSnapshot.docs.reduce((sum, doc) => sum + (doc.data().price || 0), 0);
+                                const commissionRate = novel.commissionRate || 0.1;
+                                return {
+                                    ...novel,
+                                    commissionPrinted: (novel.pricePrinted || 0) * commissionRate,
+                                    commissionDigital: totalChaptersPrice * commissionRate
+                                };
+                            } catch (error) {
+                                console.error(`Gagal menghitung potensi untuk novel ${novel.id}:`, error);
+                                return null;
+                            }
+                        }));
+                        setNovelPotentials(potentials.filter(p => p !== null));
+                        setIsCalculating(false);
+                    };
+                    calculatePotentials();
+                } else {
+                    setIsCalculating(false);
+                }
+            }, [novels, userProfile]);
+
+            if (isAuthLoading || !isProfileReady) return <div className="text-center mt-8"><TailSpin /></div>;
+            if (!user) return <DummyPage title="Akses Ditolak" description="Anda harus login untuk mengakses halaman ini." icon={<Shield size={60} className="text-gray-800"/>} />;
+            if (!userProfile) return <div className="text-center mt-8"><p>Gagal memuat profil.</p></div>;
+            
+            if (userProfile.role === 'reader') {
+                const handleApplyForAffiliate = () => {
+                    openModal(
+                        'Konfirmasi Pendaftaran Afiliasi',
+                        'Anda akan diarahkan ke WhatsApp untuk menyelesaikan pendaftaran (biaya Rp25.000). Status Anda akan diubah menjadi "Tertunda". Lanjutkan?',
+                        [
+                            { label: 'Batal', onClick: closeModal, className: 'bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold' },
+                            { 
+                                label: 'Ya, Lanjutkan', 
+                                onClick: async () => {
+                                    closeModal();
+                                    try {
+                                        const requestAffiliate = functions.httpsCallable('requestAffiliateRegistration');
+                                        const result = await requestAffiliate();
+                                        
+                                        if (result.data.success) {
+                                            const message = `Halo, saya ingin mendaftar program afiliasi.\n\nNama: ${userProfile.name}\nEmail: ${userProfile.email}\nUser ID: ${user.uid}`;
+                                            window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank');
+                                            openModal('Permintaan Terkirim', 'Permintaan pendaftaran Anda sedang diproses. Silakan lanjutkan pembayaran di WhatsApp.');
+                                        } else {
+                                            throw new Error(result.data.message || 'Gagal mengajukan pendaftaran.');
+                                        }
+                                    } catch (error) {
+                                        console.error("Gagal mendaftar afiliasi:", error);
+                                        openModal('Error', `Terjadi kesalahan. Pastikan Cloud Function sudah di-deploy dengan benar dan coba lagi. Pesan error: ${error.message}`);
+                                    }
+                                }, 
+                                className: 'btn-gradient px-4 py-2 rounded-lg' 
+                            }
+                        ]
+                    );
+                };
+
+                return (
+                    <div className="mt-4 space-y-6 fade-in">
+                        <AdminSection title="Syarat Pendaftaran Program Afiliasi">
+                            <div className="text-left text-sm text-gray-600 space-y-3">
+                                <p>Untuk bergabung sebagai affiliator, Anda dikenakan biaya pendaftaran sebesar Rp25.000 yang berlaku untuk masa aktif satu tahun.</p>
+                                <p>Program ini dirancang untuk individu yang serius ingin membangun penghasilan pasif melalui sistem yang terstruktur dan terukur.</p>
+                                <p>Setiap transaksi yang Anda hasilkan akan dicatat secara otomatis dan dikonversikan menjadi komisi sesuai ketentuan program.</p>
+                                <p className="font-semibold text-gray-800">Jika Anda siap berkomitmen, silakan lanjutkan proses pendaftaran.</p>
+                            </div>
+                        </AdminSection>
+                        <AdminSection title="Gabung Program Afiliasi">
+                            <p className="text-gray-600 mb-4">Klik tombol di bawah ini untuk mendaftar. Anda akan diarahkan ke WhatsApp Admin.</p>
+                            <button onClick={handleApplyForAffiliate} className="w-full btn-gradient p-3 rounded-lg text-lg">Daftar Sekarang</button>
+                        </AdminSection>
+                    </div>
+                );
+            }
+            
+            if (userProfile.role === 'affiliate_pending') {
+                return <DummyPage title="Pendaftaran Diproses" description="Permintaan Anda untuk menjadi afiliator sedang ditinjau oleh Admin. Terima kasih." icon={<Shield size={60} className="text-gray-800"/>} />;
+            }
+            
+            const affiliateLink = `${window.location.origin}${window.location.pathname}?ref=${user?.uid}`;
+            const canWithdraw = (userProfile.affiliateBalance || 0) >= 100000;
+
+            const handleCopyLink = () => {
+                navigator.clipboard.writeText(affiliateLink).then(() => {
+                    openModal('Salin Link', 'Link afiliasi berhasil disalin!');
+                }, () => {
+                    openModal('Gagal', 'Gagal menyalin link.');
+                });
+            };
+            
+            const handleWithdraw = () => {
+                const message = `Halo Admin, saya ingin melakukan penarikan saldo afiliasi sebesar Rp ${new Intl.NumberFormat('id-ID').format(userProfile.affiliateBalance)}. User ID: ${user.uid}`;
+                window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank');
+            };
+
+            return (
+                <div className="mt-4 space-y-6 fade-in">
+                    <AdminSection title="JADIKAN STATUSMU MESIN UANG">
+                          <div className="text-left text-gray-700 space-y-4 text-base">
+                            <p className="text-center italic">Bayangkan...</p>
+                            <p>Kamu hanya pasang link afiliasi di status, dan dari situlah lahir omset digital yang mengalir tanpa batas.</p>
+                            <p>Di Toko Buku Fatiha, satu klik dari statusmu bisa jadi <strong>warisan komisi tanpa tanggal kedaluwarsa.</strong> Siapa pun yang mendaftar melalui link afiliasimu, akan tercatat selamanya sebagai milikmu.</p>
+                            <p>Apa pun yang mereka beli hari ini, bulan depan, atau tahun depan—komisinya tetap milikmu. Buku cetak? Bab berbayar? Kampanye penulis? Semua jejak transaksi mereka jadi ladang penghasilanmu.</p>
+                            
+                            <h4 className="font-bold text-lg pt-2 text-gray-800">Kenapa sistem ini menguntungkan?</h4>
+                            <div className="space-y-2">
+                                <p><strong>Komisi Berkelanjutan:</strong> Setiap transaksi dari link afiliasi milikmu—kapan pun, berapa pun, berapa kali pun—akan mengisi saldomu secara otomatis.</p>
+                                <p><strong>Sekali Share, Selamanya Panen:</strong> Kamu hanya butuh satu kali ajak. Mereka daftar, dan sistem akan terus mencatat setiap transaksi mereka untukmu.</p>
+                                <p><strong>Sistem Otomatis & Transparan:</strong> Tak perlu hitung-hitungan manual. Semua pelacakan dilakukan oleh sistem secara real-time, bisa kamu pantau sendiri. Transparan. Modern. Andal.</p>
+                            </div>
+
+                            <p className="pt-2">Ini bukan afiliasi biasa. <strong>Ini adalah model kepemilikan digital.</strong> Siapa yang kamu undang, akan menjadi "aset aktif" yang terus menghasilkan.</p>
+                            
+                            <p className="font-semibold text-center pt-2">Mulai hari ini, setiap kali kamu posting status, setiap kali kamu berbagi tautan, selalu sisipkan link afiliasimu.</p>
+                            
+                            <p className="text-center font-bold">Karena kamu tidak sedang sekadar membagikan cerita.<br/>Kamu sedang menanam mesin uang.</p>
+                            
+                            <p className="text-center pt-2">Kalau kamu siap jadi tuan atas omset digitalmu sendiri, link afiliasimu adalah kuncinya.</p>
+                            
+                            <p className="text-center font-bold text-lg text-gradient">Toko Buku Fatiha.</p>
+                            <p className="text-center">Menulis. Menjual. Mengajak.<br/>Dan mulai mengubah status jadi saldo.</p>
+                        </div>
+                    </AdminSection>
+                    <AdminSection title="Dasbor Afiliasi Anda">
+                        <p className="text-gray-500 mb-2">Saldo Komisi Anda:</p>
+                        <p className="text-4xl font-bold text-green-600 mb-4">Rp {new Intl.NumberFormat('id-ID').format(userProfile.affiliateBalance || 0)}</p>
+                        <button onClick={handleWithdraw} disabled={!canWithdraw} className="w-full p-3 rounded-lg font-semibold transition-colors bg-green-500 text-white disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-green-600 hover:shadow-lg">
+                            Tarik Saldo (min. Rp 100.000)
+                        </button>
+                    </AdminSection>
+                    <AdminSection title="Link Afiliasi Anda">
+                        <p className="text-gray-500 mb-4">Bagikan link ini untuk mendapatkan komisi dari setiap penjualan.</p>
+                        <div className="flex w-full">
+                            <input type="text" value={affiliateLink} readOnly className="flex-grow p-3 border-dashed border-2 border-gray-300 rounded-l-lg bg-gray-50 text-gray-600 focus:outline-none" />
+                            <button onClick={handleCopyLink} className="btn-gradient p-3 rounded-r-lg font-semibold flex items-center justify-center shadow-none">
+                                <Copy size={20} />
+                            </button>
+                        </div>
+                    </AdminSection>
+                    <AdminSection title="Potensi Komisi per Judul">
+                        {isCalculating ? (
+                            <TailSpin />
+                        ) : (
+                            <div className="space-y-3">
+                                {novelPotentials.length > 0 ? novelPotentials.map(novel => (
+                                    <div key={novel.id} className="bg-gray-50/80 p-3 rounded-lg flex items-start gap-3 border border-gray-200">
+                                        <div className="w-16 flex-shrink-0">
+                                            <div className="w-full aspect-[2/3] rounded-md overflow-hidden shadow-sm">
+                                                <img src={novel.coverUrl} alt={novel.title} className="w-full h-full object-cover"/>
+                                            </div>
+                                        </div>
+                                        <div className="flex-grow">
+                                            <h4 className="font-bold text-base text-gray-800">{novel.title}</h4>
+                                            <p className="text-xs text-gray-500 mb-2">oleh {novel.author}</p>
+                                            <div className="space-y-1 text-xs">
+                                                <div className="flex items-center gap-2">
+                                                    <DollarSign size={14} className="text-orange-500 flex-shrink-0"/>
+                                                    <div className="flex flex-wrap">
+                                                        <span className="font-medium text-gray-600 mr-1">Cetak:</span>
+                                                        <strong className="text-orange-600">Rp {new Intl.NumberFormat('id-ID').format(novel.commissionPrinted)}</strong>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <BookOpen size={14} className="text-indigo-500 flex-shrink-0"/>
+                                                    <div className="flex flex-wrap">
+                                                        <span className="font-medium text-gray-600 mr-1">Digital:</span>
+                                                        <strong className="text-indigo-600">Rp {new Intl.NumberFormat('id-ID').format(novel.commissionDigital)}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <p className="text-center text-gray-500">Tidak ada novel yang tersedia untuk dihitung potensinya.</p>
+                                )}
+                            </div>
+                        )}
+                    </AdminSection>
+                </div>
+            );
+        };
+                
+        const AdminSection = memo(({ title, children }) => (
+            <div className="bg-white/80 p-6 rounded-2xl shadow-lg backdrop-blur-sm">
+                <h3 className="text-2xl font-bold mb-4 text-gray-800 border-b-2 border-indigo-200 pb-3">{title}</h3>
+                {children}
+            </div>
+        ));
+
+        const TabButton = memo(({ name, label, activeTab, setActiveTab }) => (
+            <button 
+                onClick={() => setActiveTab(name)}
+                className={`${
+                    activeTab === name
+                        ? 'border-indigo-500 text-indigo-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                } whitespace-nowrap py-4 px-2 border-b-2 font-semibold text-base transition-all`}
+            >
+                {label}
+            </button>
+        ));
+
+        const AdminPage = () => {
+            const { adminTab, setAdminTab } = useContext(AppContext);
+            const contextProps = useContext(AppContext);
+
+            return (
+                <div className="mt-4 space-y-6 fade-in">
+                    <h2 className="text-4xl font-black text-gradient">Dasbor Admin</h2>
+                    <div className="border-b border-gray-200">
+                        <nav className="-mb-px flex space-x-8 overflow-x-auto scrollbar-hide" aria-label="Tabs">
+                            <TabButton name="users" label="Pengguna" activeTab={adminTab} setActiveTab={setAdminTab} />
+                            <TabButton name="affiliates" label="Afiliasi" activeTab={adminTab} setActiveTab={setAdminTab} />
+                            <TabButton name="content" label="Novel & Bab" activeTab={adminTab} setActiveTab={setAdminTab} />
+                            <TabButton name="settings" label="Pengaturan" activeTab={adminTab} setActiveTab={setAdminTab} />
+                        </nav>
+                    </div>
+                    <div className="mt-6">
+                        {adminTab === 'users' && <UserManagement {...contextProps} />}
+                        {adminTab === 'affiliates' && <AffiliateManagement {...contextProps} />}
+                        {adminTab === 'content' && <NovelManagement {...contextProps} />}
+                        {adminTab === 'settings' && <SettingsManagement {...contextProps} />}
+                    </div>
+                </div>
+            );
+        };
+        
+        const UserManagement = ({ openModal }) => {
+            const [allUsers, setAllUsers] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
+            const [saldoUser, setSaldoUser] = useState('');
+            const [saldoAmount, setSaldoAmount] = useState('');
+
+            useEffect(() => {
+                const unsubscribe = db.collection('users').onSnapshot(snapshot => {
+                    setAllUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                    setIsLoading(false);
+                }, error => {
+                    console.error("Error fetching users:", error)
+                    setIsLoading(false);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            const displayedUsers = allUsers.filter(u => u.role);
+
+            const handleAddBalance = async (e) => {
+                e.preventDefault();
+                const amount = parseInt(saldoAmount, 10);
+                if (!saldoUser || isNaN(amount)) { 
+                    openModal('Error', 'Silakan pilih pengguna dan masukkan jumlah yang valid.'); 
+                    return; 
+                }
+                await db.collection('users').doc(saldoUser).update({ balance: FieldValue.increment(amount) });
+                openModal('Sukses', `Saldo berhasil diubah.`);
+                setSaldoUser(''); setSaldoAmount('');
+            };
+            
+            if(isLoading) return <TailSpin/>;
+
+            return (
+                <AdminSection title="Kelola Pengguna Terdaftar">
+                    <form onSubmit={handleAddBalance} className="space-y-3 mb-6 p-4 border rounded-lg bg-gray-50/80">
+                        <h4 className="text-lg font-semibold text-gray-800">Ubah Saldo Pengguna</h4>
+                        <select value={saldoUser} onChange={e => setSaldoUser(e.target.value)} className="w-full p-2 border border-gray-300 rounded-lg bg-white text-gray-900" required>
+                            <option value="">Pilih Pengguna</option>
+                            {displayedUsers.map(u => <option key={u.id} value={u.id}>{u.name} ({u.email})</option>)}
+                        </select>
+                        <input type="number" value={saldoAmount} onChange={e => setSaldoAmount(e.target.value)} placeholder="Jumlah (gunakan - untuk mengurangi)" className="w-full p-2 border border-gray-300 rounded-lg bg-white text-gray-900" required />
+                        <button type="submit" className="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 font-semibold transition-all">Ubah Saldo</button>
+                    </form>
+                        <div className="space-y-3">
+                                {displayedUsers.map(u => (
+                                    <div key={u.id} className="bg-gray-50/80 p-3 rounded-lg flex justify-between items-center">
+                                        <div>
+                                            <p className="font-semibold text-gray-800 break-all">{u.email} <span className="text-xs bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full whitespace-nowrap">{u.role}</span></p>
+                                            <p className="text-sm text-gray-500">{u.name}</p>
+                                            <p className="text-sm text-green-600 font-medium">Saldo: Rp {new Intl.NumberFormat('id-ID').format(u.balance || 0)}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                </AdminSection>
+            );
+        };
+        
+        const AffiliateManagement = ({ openModal }) => {
+            const [allUsers, setAllUsers] = useState([]);
+            const [isLoading, setIsLoading] = useState(true);
+
+            useEffect(() => {
+                const unsubscribe = db.collection('users').onSnapshot(snapshot => {
+                    setAllUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                    setIsLoading(false);
+                }, error => {
+                    console.error("Error fetching users for affiliate management:", error)
+                    setIsLoading(false);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            const handleAffiliateAction = async (userId, newRole) => {
+                await db.collection('users').doc(userId).update({ role: newRole });
+                openModal('Sukses', `Status afiliasi pengguna telah diperbarui.`);
+            };
+            
+            if(isLoading) return <TailSpin/>;
+
+            return (
+                <AdminSection title="Kelola Afiliasi">
+                    <div className="space-y-3">
+                        {allUsers.filter(u => u.role?.includes('affiliate')).length > 0 ? (
+                            allUsers.filter(u => u.role?.includes('affiliate')).map(user => (
+                                <div key={user.id} className="bg-gray-50/80 p-3 rounded-lg flex justify-between items-center">
+                                    <div>
+                                        <p className="font-semibold text-gray-800">{user.name}</p>
+                                        <p className="text-sm text-gray-500">{user.email} - <span className={`font-medium ${user.role === 'affiliate' ? 'text-green-600' : 'text-yellow-600'}`}>{user.role === 'affiliate' ? 'Aktif' : 'Tertunda'}</span></p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        {user.role === 'affiliate_pending' && (
+                                            <Fragment>
+                                                <button onClick={() => handleAffiliateAction(user.id, 'affiliate')} className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">Setujui</button>
+                                                <button onClick={() => handleAffiliateAction(user.id, 'reader')} className="text-xs bg-gray-500 text-white px-2 py-1 rounded hover:bg-gray-600">Tolak</button>
+                                            </Fragment>
+                                        )}
+                                        {user.role === 'affiliate' && (
+                                            <button onClick={() => handleAffiliateAction(user.id, 'reader')} className="text-xs bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">Cabut</button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-center text-gray-500">Belum ada permintaan afiliasi.</p>
+                        )}
+                    </div>
+                </AdminSection>
+            );
+        };
+
+        const NovelManagement = ({ openModal, closeModal }) => {
+            const [newNovel, setNewNovel] = useState({ title: '', author: '', coverUrl: '', genre: '', pricePrinted: '', commissionRate: '', synopsis: '' });
+            const [editingNovel, setEditingNovel] = useState(null);
+            const [chaptersByNovel, setChaptersByNovel] = useState({});
+            const [newChapter, setNewChapter] = useState({ novelId: '', number: '', title: '', price: '', content: '' });
+            const [expandedNovels, setExpandedNovels] = useState({});
+            const [chapterListeners, setChapterListeners] = useState({});
+            const [adminNovels, setAdminNovels] = useState([]);
+            const [isFetchingAdminNovels, setIsFetchingAdminNovels] = useState(true);
+
+            useEffect(() => {
+                setIsFetchingAdminNovels(true);
+                const unsubscribe = db.collection('novels').onSnapshot((snapshot) => {
+                    const allNovelData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    allNovelData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                    setAdminNovels(allNovelData);
+                    setIsFetchingAdminNovels(false);
+                }, (error) => {
+                    console.error("Error fetching all novels for admin:", error);
+                    setIsFetchingAdminNovels(false);
+                });
+                return () => unsubscribe();
+            }, []);
+
+            useEffect(() => {
+                if(editingNovel) {
+                    setNewNovel(editingNovel);
+                } else {
+                    setNewNovel({ title: '', author: '', coverUrl: '', genre: '', pricePrinted: '', commissionRate: '', synopsis: '' });
+                }
+            }, [editingNovel]);
+
+            useEffect(() => {
+                return () => Object.values(chapterListeners).forEach(unsub => unsub());
+            }, [chapterListeners]);
+
+            const handleNovelFormChange = (e) => {
+                const { name, value } = e.target;
+                setNewNovel(prev => ({...prev, [name]: value}));
+            };
+            
+            const handleNovelSubmit = async (e) => {
+                e.preventDefault();
+                const currentData = newNovel;
+                let rate = parseFloat(currentData.commissionRate);
+                if (rate > 1) rate = rate / 100;
+                const price = parseFloat(currentData.pricePrinted);
+
+                const novelData = { 
+                    ...currentData, 
+                    pricePrinted: isNaN(price) ? 0 : price, 
+                    commissionRate: isNaN(rate) ? 0.1 : rate,
+                };
+
+                try {
+                    if (editingNovel) {
+                        const { id, ...dataToUpdate } = novelData;
+                        await db.collection('novels').doc(editingNovel.id).update(dataToUpdate);
+                        setEditingNovel(null);
+                        openModal('Sukses', 'Novel berhasil diperbarui.');
+                    } else {
+                        await db.collection('novels').add({ ...novelData, createdAt: FieldValue.serverTimestamp(), views: 0 });
+                        setNewNovel({ title: '', author: '', coverUrl: '', genre: '', pricePrinted: '', commissionRate: '', synopsis: '' });
+                        openModal('Sukses', 'Novel baru berhasil ditambahkan.');
+                    }
+                } catch (error) {
+                    console.error("Error adding/updating novel: ", error);
+                    openModal('Error', 'Gagal menyimpan novel.');
+                }
+            };
+            
+            const handleChapterFormChange = (e) => {
+                const { name, value } = e.target;
+                setNewChapter(prev => ({ ...prev, [name]: value }));
+            };
+
+            const handleAddChapter = async (e) => {
+                e.preventDefault();
+                if (!newChapter.novelId || !newChapter.title) { openModal('Error', 'Novel dan Judul Bab harus diisi.'); return; }
+                
+                const number = parseInt(newChapter.number, 10);
+                const price = parseInt(newChapter.price, 10);
+
+                await db.collection('novels').doc(newChapter.novelId).collection('chapters').add({ 
+                    ...newChapter, 
+                    number: isNaN(number) ? 0 : number, 
+                    price: isNaN(price) ? 0 : price,
+                });
+                setNewChapter({ novelId: '', number: '', title: '', price: '', content: '' });
+                openModal('Sukses', 'Bab baru berhasil ditambahkan.');
+            };
+
+            const confirmAction = (title, content, onConfirm, confirmLabel = 'Hapus') => {
+                openModal(title, content, [
+                    { label: 'Batal', onClick: closeModal, className: 'bg-gray-200 text-gray-800 px-4 py-2 rounded-lg font-semibold' },
+                    { label: confirmLabel, onClick: () => { onConfirm(); closeModal(); }, className: 'bg-red-600 text-white px-4 py-2 rounded-lg' }
+                ]);
+            };
+
+            const handleRemoveNovel = (novelId) => {
+                confirmAction('Hapus Novel?', 'Anda yakin ingin menghapus novel ini beserta semua babnya?', async () => {
+                    await db.collection('novels').doc(novelId).delete();
+                    openModal('Sukses', 'Novel berhasil dihapus.');
+                });
+            };
+            
+            const handleRemoveChapter = (novelId, chapterId) => {
+                confirmAction('Hapus Bab?', 'Anda yakin ingin menghapus bab ini?', async () => {
+                    await db.collection('novels').doc(novelId).collection('chapters').doc(chapterId).delete();
+                    openModal('Sukses', 'Bab berhasil dihapus.');
+                });
+            };
+            
+            const handleFixDate = async (novelId) => {
+                try {
+                    const novelRef = db.collection('novels').doc(novelId);
+                    await novelRef.update({
+                        createdAt: FieldValue.serverTimestamp()
+                    });
+                    openModal('Sukses', 'Tanggal novel telah diperbaiki. Novel ini sekarang akan muncul di beranda.');
+                } catch (error) {
+                    console.error("Error fixing novel date:", error);
+                    openModal('Error', 'Gagal memperbaiki tanggal novel.');
+                }
+            };
+
+            const toggleChapterList = (novelId) => {
+                const isCurrentlyExpanded = !!expandedNovels[novelId];
+                setExpandedNovels(prev => ({
+                    ...prev,
+                    [novelId]: !prev[novelId]
+                }));
+
+                if (!isCurrentlyExpanded && !chaptersByNovel[novelId] && !chapterListeners[novelId]) {
+                    const unsubscribe = db.collection('novels').doc(novelId).collection('chapters').orderBy('number').onSnapshot(snapshot => {
+                        const chapterData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        setChaptersByNovel(prev => ({ ...prev, [novelId]: chapterData }));
+                    }, error => console.error(`Error fetching chapters for novel ${novelId}:`, error));
+                    
+                    setChapterListeners(prev => ({...prev, [novelId]: unsubscribe}));
+                }
+            };
+
+            return (
+                <AdminSection title="Kelola Novel & Bab">
+                    <form onSubmit={handleNovelSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 border rounded-lg bg-gray-50/80">
+                        <h4 className="col-span-full text-lg font-semibold text-gray-800">{editingNovel ? `Edit: ${editingNovel.title}` : 'Tambah Novel Baru'}</h4>
+                        <input name="title" value={newNovel.title} onChange={handleNovelFormChange} placeholder="Judul Novel" className="p-2 border border-gray-300 bg-white rounded-lg text-gray-900" required />
+                        <input name="author" value={newNovel.author} onChange={handleNovelFormChange} placeholder="Penulis" className="p-2 border border-gray-300 bg-white rounded-lg text-gray-900" required />
+                        <input name="coverUrl" value={newNovel.coverUrl} onChange={handleNovelFormChange} placeholder="URL Cover" className="p-2 border border-gray-300 bg-white rounded-lg col-span-full text-gray-900" required />
+                        <input name="genre" value={newNovel.genre} onChange={handleNovelFormChange} placeholder="Genre" className="p-2 border border-gray-300 bg-white rounded-lg text-gray-900" />
+                        <input name="pricePrinted" type="number" value={newNovel.pricePrinted} onChange={handleNovelFormChange} placeholder="Harga Cetak" className="p-2 border border-gray-300 bg-white rounded-lg text-gray-900" />
+                        <input name="commissionRate" type="number" step="0.01" value={newNovel.commissionRate} onChange={handleNovelFormChange} placeholder="Rate Komisi (cth: 0.1 untuk 10%)" className="p-2 border border-gray-300 bg-white rounded-lg text-gray-900" />
+                        <textarea name="synopsis" value={newNovel.synopsis} onChange={handleNovelFormChange} placeholder="Sinopsis" className="p-2 border border-gray-300 bg-white rounded-lg col-span-full text-gray-900" rows="3"></textarea>
+                        <div className="col-span-full flex gap-2">
+                            <button type="submit" className="flex-grow bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 font-semibold transition-all">{editingNovel ? 'Update Novel' : 'Tambah Novel'}</button>
+                            {editingNovel && <button type="button" onClick={() => setEditingNovel(null)} className="bg-gray-300 p-3 rounded-lg">Batal</button>}
+                        </div>
+                    </form>
+
+                    <form onSubmit={handleAddChapter} className="grid grid-cols-1 gap-4 mb-6 p-4 border rounded-lg bg-gray-50/80">
+                        <h4 className="col-span-full text-lg font-semibold text-gray-800">Tambah Bab Baru</h4>
+                        <select name="novelId" value={newChapter.novelId} onChange={handleChapterFormChange} className="p-2 border border-gray-300 bg-white rounded-lg text-gray-800" required>
+                            <option value="">Pilih Novel</option>
+                            {adminNovels.map(n => <option key={n.id} value={n.id}>{n.title}</option>)}
+                        </select>
+                        <input name="number" type="number" value={newChapter.number} onChange={handleChapterFormChange} placeholder="Nomor Bab" className="p-2 border border-gray-300 bg-white rounded-lg text-gray-900" required />
+                        <input name="title" value={newChapter.title} onChange={handleChapterFormChange} placeholder="Judul Bab" className="p-2 border border-gray-300 bg-white rounded-lg text-gray-900" required />
+                        <input name="price" type="number" value={newChapter.price} onChange={handleChapterFormChange} placeholder="Harga (0 jika gratis)" className="p-2 border border-gray-300 bg-white rounded-lg text-gray-900" required />
+                        <textarea name="content" value={newChapter.content} onChange={handleChapterFormChange} placeholder="Konten bab..." className="p-2 border border-gray-300 bg-white rounded-lg col-span-full text-gray-900" rows="4"></textarea>
+                        <button type="submit" className="bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 font-semibold transition-all">Tambah Bab</button>
+                    </form>
+
+                        <div className="space-y-4">
+                                {isFetchingAdminNovels ? <TailSpin /> : adminNovels.map(novel => (
+                                    <div key={novel.id} className="bg-gray-100/80 p-3 rounded-lg">
+                                        <div className="flex justify-between items-center">
+                                            <button onClick={() => toggleChapterList(novel.id)} className="flex items-center gap-2 text-left w-full">
+                                                <span className={`transform transition-transform duration-200 ${expandedNovels[novel.id] ? 'rotate-90' : ''}`}><ChevronRight size={16} /></span>
+                                                <span className="font-medium text-gray-800">{novel.title}</span>
+                                            </button>
+                                            <div className="flex gap-2 flex-shrink-0">
+                                                <button onClick={() => setEditingNovel(novel)} className="text-blue-500 hover:text-blue-700"><Edit size={18}/></button>
+                                                <button onClick={() => handleRemoveNovel(novel.id)} className="text-red-500 hover:text-red-700"><Trash2 size={18}/></button>
+                                            </div>
+                                        </div>
+                                        
+                                        {!novel.createdAt && (
+                                            <div className="mt-2 p-2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm flex justify-between items-center rounded">
+                                                <p className="mr-2">Peringatan: Novel ini tidak memiliki tanggal pembuatan.</p>
+                                                <button onClick={() => handleFixDate(novel.id)} className="bg-yellow-500 text-white px-3 py-1 rounded-md text-xs font-bold hover:bg-yellow-600 flex-shrink-0">
+                                                    Perbaiki
+                                                </button>
+                                            </div>
+                                        )}
+
+                                        {expandedNovels[novel.id] && (
+                                            <div className="mt-2 pl-4 border-l-2 ml-2 space-y-1">
+                                                {chaptersByNovel[novel.id] === undefined && <p className="text-sm text-gray-500 italic py-1">Memuat bab...</p>}
+                                                {(chaptersByNovel[novel.id] || []).length > 0 ? (
+                                                    (chaptersByNovel[novel.id] || []).map(ch => (
+                                                        <div key={ch.id} className="flex justify-between items-center text-sm py-1">
+                                                            <p className="text-gray-700">Bab {ch.number}: {ch.title}</p>
+                                                            <button onClick={() => handleRemoveChapter(novel.id, ch.id)} className="text-red-500 hover:text-red-700 flex-shrink-0"><Trash2 size={14}/></button>
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    chaptersByNovel[novel.id] !== undefined && <p className="text-sm text-gray-500 italic py-1">Belum ada bab.</p>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                        </div>
+                </AdminSection>
+            );
+        };
+
+        const SettingsManagement = ({ novels, openModal, homepageSections, banners, runningText }) => {
+            const [newSectionTitle, setNewSectionTitle] = useState('');
+            const [selectedNovelsForSection, setSelectedNovelsForSection] = useState([]);
+            const [newBannerUrl, setNewBannerUrl] = useState('');
+            const [editingSection, setEditingSection] = useState(null);
+            const [newRunningText, setNewRunningText] = useState(runningText || '');
+
+            useEffect(() => {
+                setNewRunningText(runningText || '');
+            }, [runningText]);
+
+            useEffect(() => {
+                if (editingSection) {
+                    setNewSectionTitle(editingSection.title);
+                    setSelectedNovelsForSection(editingSection.novelIds);
+                } else {
+                    setNewSectionTitle('');
+                    setSelectedNovelsForSection([]);
+                }
+            }, [editingSection]);
+
+            const handleSaveRunningText = async (e) => {
+                e.preventDefault();
+                try {
+                    await db.collection('settings').doc('homepage').set({ runningText: newRunningText }, { merge: true });
+                    openModal('Sukses', 'Teks berjalan berhasil diperbarui.');
+                } catch (error) {
+                    console.error("Error updating running text:", error);
+                    openModal('Error', 'Gagal memperbarui teks berjalan.');
+                }
+            };
+
+            const handleSectionSubmit = async (e) => {
+                e.preventDefault();
+                if (!newSectionTitle || selectedNovelsForSection.length === 0) {
+                    openModal('Error', 'Judul dan minimal satu novel harus dipilih.');
+                    return;
+                }
+
+                const homepageRef = db.collection('settings').doc('homepage');
+
+                if (editingSection) {
+                    const updatedSections = homepageSections.map(section => 
+                        section.id === editingSection.id 
+                        ? { ...section, title: newSectionTitle, novelIds: selectedNovelsForSection } 
+                        : section
+                    );
+                    await homepageRef.update({ sections: updatedSections });
+                    openModal('Sukses', 'Section berhasil diperbarui.');
+                } else {
+                    const newSection = { id: `custom-${Date.now()}`, title: newSectionTitle, type: 'custom', enabled: true, novelIds: selectedNovelsForSection };
+                    await homepageRef.update({ sections: FieldValue.arrayUnion(newSection) });
+                    openModal('Sukses', 'Section baru berhasil ditambahkan.');
+                }
+                setEditingSection(null);
+            };
+
+            const handleRemoveSection = async (sectionId) => {
+                const sectionToRemove = homepageSections.find(s => s.id === sectionId);
+                if (sectionToRemove) {
+                    await db.collection('settings').doc('homepage').update({ sections: FieldValue.arrayRemove(sectionToRemove) });
+                    openModal('Sukses', 'Section berhasil dihapus.');
+                }
+            };
+            
+            const moveSection = async (index, direction) => {
+                const newSections = [...homepageSections];
+                const [movedItem] = newSections.splice(index, 1);
+                newSections.splice(index + direction, 0, movedItem);
+                await db.collection('settings').doc('homepage').update({ sections: newSections });
+            };
+            
+            const handleAddBanner = async (e) => {
+                e.preventDefault();
+                if (!newBannerUrl) return;
+                await db.collection('settings').doc('homepage').update({ banners: FieldValue.arrayUnion(newBannerUrl) });
+                setNewBannerUrl('');
+                openModal('Sukses', 'Banner berhasil ditambahkan.');
+            };
+
+            const handleRemoveBanner = async (bannerUrl) => {
+                await db.collection('settings').doc('homepage').update({ banners: FieldValue.arrayRemove(bannerUrl) });
+                openModal('Sukses', 'Banner berhasil dihapus.');
+            };
+
+            return (
+                <Fragment>
+                    <AdminSection title="Kelola Teks Berjalan">
+                        <form onSubmit={handleSaveRunningText} className="space-y-3">
+                            <textarea 
+                                value={newRunningText} 
+                                onChange={e => setNewRunningText(e.target.value)} 
+                                placeholder="Tulis pengumuman atau promosi di sini..." 
+                                className="w-full p-2 border border-gray-300 bg-white rounded-lg text-gray-900" 
+                                rows="3"
+                            ></textarea>
+                            <button type="submit" className="w-full bg-indigo-500 text-white p-3 rounded-lg hover:bg-indigo-600 font-semibold transition-all">Simpan Teks Berjalan</button>
+                        </form>
+                    </AdminSection>
+
+                    <AdminSection title="Kelola Banner">
+                        <form onSubmit={handleAddBanner} className="flex gap-2 mb-4">
+                            <input type="url" value={newBannerUrl} onChange={e => setNewBannerUrl(e.target.value)} placeholder="https://example.com/banner.jpg" className="flex-grow p-2 border border-gray-300 bg-white rounded-lg text-gray-900" required />
+                            <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-semibold transition-all">Tambah</button>
+                        </form>
+                        <div className="space-y-2">
+                            {banners.map((banner, index) => (
+                                <div key={index} className="flex items-center justify-between bg-gray-50/80 p-2 rounded-lg">
+                                    <span className="text-sm truncate text-gray-600">{banner}</span>
+                                    <button onClick={() => handleRemoveBanner(banner)} className="text-red-500 hover:text-red-700"><Trash2 size={18}/></button>
+                                </div>
+                            ))}
+                        </div>
+                    </AdminSection>
+
+                    <AdminSection title="Kelola Section Beranda">
+                        <form onSubmit={handleSectionSubmit} className="mb-6 p-4 border rounded-lg bg-gray-50/80">
+                            <h4 className="text-lg font-semibold mb-2 text-gray-800">{editingSection ? 'Edit Section' : 'Tambah Section Kustom'}</h4>
+                            <input type="text" value={newSectionTitle} onChange={e => setNewSectionTitle(e.target.value)} placeholder="Judul Section" className="w-full p-2 border border-gray-300 bg-white rounded-lg mb-2 text-gray-900" required />
+                            <p className="text-sm mb-2 text-gray-700">Pilih novel untuk ditampilkan:</p>
+                            <div className="max-h-32 overflow-y-auto border rounded-lg p-2 space-y-1 mb-3 bg-white">
+                                {novels.map(novel => (
+                                    <label key={novel.id} className="flex items-center gap-2 cursor-pointer text-gray-800">
+                                        <input type="checkbox" checked={selectedNovelsForSection.includes(novel.id)} onChange={() => setSelectedNovelsForSection(prev => prev.includes(novel.id) ? prev.filter(id => id !== novel.id) : [...prev, novel.id])} />
+                                        {novel.title}
+                                    </label>
+                                ))}
+                            </div>
+                            <div className="flex gap-2">
+                                <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600 font-semibold transition-all">{editingSection ? 'Update Section' : 'Tambah Section'}</button>
+                                {editingSection && <button type="button" onClick={() => setEditingSection(null)} className="w-full bg-gray-200 p-2 rounded-lg">Batal</button>}
+                            </div>
+                        </form>
+                        <div className="space-y-2">
+                            {homepageSections.map((section, index) => (
+                                <div key={section.id} className="flex items-center justify-between bg-gray-50/80 p-2 rounded-lg">
+                                    <span className="font-medium text-gray-700">{section.title}</span>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => moveSection(index, -1)} disabled={index === 0} className="disabled:opacity-25"><ArrowUp size={18}/></button>
+                                        <button onClick={() => moveSection(index, 1)} disabled={index === homepageSections.length - 1} className="disabled:opacity-25"><ArrowDown size={18}/></button>
+                                        {section.type === 'custom' && (
+                                            <>
+                                                <button onClick={() => setEditingSection(section)} className="text-blue-500 hover:text-blue-700"><Edit size={18}/></button>
+                                                <button onClick={() => handleRemoveSection(section.id)} className="text-red-500 hover:text-red-700"><Trash2 size={18}/></button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </AdminSection>
+                </Fragment>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<StrictMode><App /></StrictMode>);
+
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('initial-loader-container');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }
+        });
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => console.log('Service Worker terdaftar:', registration.scope))
+                    .catch(error => console.log('Pendaftaran Service Worker gagal:', error));
+            });
+        }
+    </script>
+
+</body>
+</html>
+
+
+
